@@ -20,3 +20,25 @@ The supplied posters are already included and are used as event-card images.
 The current WhatsApp and ticket links are placeholders. Replace them with the owner's real WhatsApp number and the correct ticketing links.
 
 The event dates/prices shown are taken from the supplied posters and should be confirmed by the owner before publishing.
+
+
+------------------------------------------------------------
+VENUE SECTION FIX
+------------------------------------------------------------
+
+The original website has been preserved.
+
+ONLY the background image in:
+"THE PERFECT VENUE FOR EVERY OCCASION."
+
+was changed.
+
+The Juta Saturdays poster that was being used as that section's
+background has been replaced with:
+
+assets/juta_river_venue.jpg
+
+The event posters, hero, HTML, JavaScript, other assets and the
+existing mobile layout are all preserved from the original ZIP.
+
+Upload/commit this complete website folder to GitHub Pages.
