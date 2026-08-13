@@ -27,3 +27,7 @@ git add .
 git commit -m "Upgrade Juta River responsive website"
 git push
 ```
+
+
+## Mobile update
+The mobile navigation uses a hamburger menu, while the Events section becomes a horizontal swipe carousel on screens up to 900px wide. If an older layout appears after pushing, hard-refresh the deployed site or clear the browser cache.

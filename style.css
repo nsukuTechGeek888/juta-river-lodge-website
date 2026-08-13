@@ -136,10 +136,10 @@ footer{border-top:1px solid var(--line);padding:60px max(28px,calc((100vw - var(
 
 @media(max-width:900px){
   :root{--header-h:72px}
-  .desktop-nav,.header-cta{display:none}
-  .menu-btn{display:flex}
+  .desktop-nav,.header-cta{display:none!important}
+  .menu-btn{display:flex!important}
   .site-header{height:72px;padding:0 17px;background:rgba(5,8,9,.8)}
-  .mobile-menu{display:block;position:fixed;inset:72px 12px auto;z-index:39;opacity:0;visibility:hidden;transform:translateY(-10px);transition:.25s var(--ease);pointer-events:none}
+  .mobile-menu{display:block!important;position:fixed;inset:72px 12px auto;z-index:39;opacity:0;visibility:hidden;transform:translateY(-10px);transition:.25s var(--ease);pointer-events:none}
   .mobile-menu nav{display:flex;flex-direction:column;gap:4px;padding:12px;background:rgba(8,11,13,.97);border:1px solid rgba(255,255,255,.12);border-radius:18px;box-shadow:0 25px 70px rgba(0,0,0,.5);backdrop-filter:blur(20px)}
   .mobile-menu a{padding:16px 14px;border-radius:12px;color:#eee;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.12em}
   .mobile-menu a:hover{background:rgba(242,195,95,.09);color:var(--gold)}
@@ -163,6 +163,27 @@ footer{border-top:1px solid var(--line);padding:60px max(28px,calc((100vw - var(
   .booking-actions{justify-content:flex-start}
   .footer-main{grid-template-columns:1fr 1fr}
   .footer-brand{grid-column:1/-1}
+}
+
+@media(max-width:900px){
+  /* Mobile events are a horizontal swipe carousel, not a vertical stack. */
+  .events-grid{
+    display:flex;
+    overflow-x:auto;
+    overflow-y:hidden;
+    flex-wrap:nowrap;
+    gap:16px;
+    padding:2px 2px 16px;
+    margin-right:-1px;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .events-grid::-webkit-scrollbar{display:none}
+  .event-card{
+    flex:0 0 min(78vw,390px);
+    scroll-snap-align:start;
+  }
 }
 
 @media(max-width:560px){
