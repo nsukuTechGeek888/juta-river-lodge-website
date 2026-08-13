@@ -1,18 +1,29 @@
-# The Juta River — Top Website Build
+# The Juta River — Responsive Website Upgrade
 
-A polished responsive static website for The Juta River in Giyani.
+This version is focused on being polished, responsive and easy to use across desktop, tablet and mobile.
 
 ## Included
-- Metro Home Coming poster used as the hero visual and next-main-event card
-- Event poster collection in the Events section
-- Venue section using the supplied Juta River venue image, warm graded for the black/gold design
-- Responsive mobile navigation
-- Live countdown to 26 December 2026
-- Venue booking / WhatsApp CTA
-- Responsive event cards, experience section and footer
-- No framework required: plain HTML, CSS and JavaScript
+- Metro Home Coming poster as the hero visual
+- Juta River venue image in the “perfect venue for every occasion” section
+- Event posters and event cards
+- Responsive navigation with a mobile menu
+- Mobile sticky quick actions for Events, WhatsApp and Booking
+- Countdown to Metro Home Coming
+- Scroll progress indicator
+- Back-to-top button
+- Smooth scrolling and reveal animations
+- Responsive typography, cards, spacing and image sizing
+- Accessibility improvements and reduced-motion support
+- Lazy loading for below-the-fold event posters
 
-## Run
-Open `index.html` in a browser.
+## Git
+Copy the contents of this folder into your existing Git repository, replacing the old `index.html`, `style.css`, `script.js` and `assets` files.
 
-For best local development, serve the folder with any simple static server.
+Then run:
+
+```bash
+git status
+git add .
+git commit -m "Upgrade Juta River responsive website"
+git push
+```
