@@ -1,91 +1,110 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#080908">
-  <meta name="description" content="The Juta River Lodge — Giyani's destination for events, parties and unforgettable moments.">
-  <title>The Juta River | Events & Venue</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#090909" />
+  <title>The Juta River | Events, Eating House & Venue</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600;1,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<header class="site-header">
-  <a class="brand" href="#home" aria-label="The Juta River home">
-    <span class="brand-mark">♨</span>
-    <span class="brand-name">THE JUTA<small>RIVER LODGE</small></span>
-  </a>
-  <nav class="desktop-nav" aria-label="Primary navigation">
-    <a href="#home">Home</a><a href="#events">Events</a><a href="#tickets">Tickets</a><a href="#venue">Venue</a><a href="#contact">Contact</a>
+<header class="nav">
+  <a class="brand" href="#"><span class="brand-mark">♨</span><span>THE JUTA<small>RIVER & EATING HOUSE</small></span></a>
+  <nav>
+    <a href="#home">Home</a><a href="#events">Events</a><a href="#venue">Venue</a><a href="#gallery">Gallery</a><a href="#contact">Contact</a>
   </nav>
-  <a class="gold-btn nav-cta" href="#contact">Book a Venue</a>
-  <button class="menu-btn" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  <a class="gold-btn" href="#contact">Book a venue</a>
 </header>
-<div class="mobile-menu">
-  <a href="#home">Home</a><a href="#events">Events</a><a href="#tickets">Tickets</a><a href="#venue">Venue</a><a href="#contact">Contact</a>
-</div>
 
-<main id="home">
-<section class="hero">
+<main>
+<section class="hero" id="home">
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <p class="eyebrow">THE JUTA RIVER PRESENTS</p>
-    <h1>MORE THAN<br><em>AN EVENT</em></h1>
-    <p class="hero-copy">Giyani's destination for events, parties and unforgettable moments.</p>
-    <div class="hero-actions"><a class="gold-btn" href="#events">View Events</a><a class="outline-btn" href="#venue">Book the Venue</a></div>
+    <div class="eyebrow">GIYANI • KA THOMO</div>
+    <h1>MORE THAN<br><em>AN EVENT.</em></h1>
+    <p class="hero-copy">Experience. Vibes. Memories. The Juta River is Giyani's destination for events, parties, food and unforgettable moments.</p>
+    <div class="hero-actions">
+      <a class="gold-btn" href="#events">View events</a>
+      <a class="outline-btn" href="#contact">Book your event</a>
+    </div>
   </div>
-  <aside class="next-event" id="tickets">
-    <div class="panel-title">NEXT MAIN EVENT</div>
-    <div class="countdown" data-date="2026-12-26T20:00:00+02:00">
-      <div><strong data-days>00</strong><span>DAYS</span></div><div><strong data-hours>00</strong><span>HRS</span></div><div><strong data-minutes>00</strong><span>MINS</span></div><div><strong data-seconds>00</strong><span>SECS</span></div>
+  <div class="countdown-card">
+    <span class="mini-label">NEXT MAIN EVENT</span>
+    <div class="countdown" id="countdown">
+      <div><b id="days">--</b><small>DAYS</small></div>
+      <div><b id="hours">--</b><small>HRS</small></div>
+      <div><b id="mins">--</b><small>MINS</small></div>
+      <div><b id="secs">--</b><small>SECS</small></div>
     </div>
-    <div class="event-mini">
-      <img src="assets/metro-home-coming.jpg" alt="Metro Home Coming event poster">
-      <div><b>METRO<br>HOME COMING</b><span>26 DEC 2026</span><small>THE JUTA RIVER<br>GIYANI, KA THOMO</small></div>
+    <img src="assets/metro_home_coming_26_december.jpg" alt="Metro Home Coming event poster">
+    <div class="next-event">
+      <div><strong>METRO HOME COMING</strong><span>26 DEC 2026 • THE JUTA RIVER</span></div>
+      <a class="gold-btn small" href="#contact">Get tickets</a>
     </div>
-    <a class="gold-btn full" href="#events">Get Tickets</a>
-  </aside>
+  </div>
 </section>
 
-<section class="feature-strip" aria-label="Venue highlights">
-  <div>♛<span>Premium<br>Venue</span></div><div>▣<span>Secure<br>Parking</span></div><div>♜<span>Food &<br>Drinks</span></div><div>♕<span>VIP<br>Experience</span></div><div>♬<span>Top<br>Entertainment</span></div>
+<section class="feature-strip">
+  <div>✦ <span>PREMIUM<br>VENUE</span></div>
+  <div>▣ <span>SECURE<br>PARKING</span></div>
+  <div>♨ <span>FOOD &<br>DRINKS</span></div>
+  <div>♛ <span>VIP<br>EXPERIENCE</span></div>
+  <div>♪ <span>TOP<br>ENTERTAINMENT</span></div>
 </section>
 
-<section class="section events-section" id="events">
-  <div class="section-heading"><div><p class="eyebrow">WHAT'S HAPPENING</p><h2>FEATURED <em>EVENTS</em> ✦</h2></div><span class="scroll-hint">SWIPE →</span></div>
+<section class="section" id="events">
+  <div class="section-head"><h2>UPCOMING <em>EVENTS</em></h2><a href="#events">VIEW ALL EVENTS →</a></div>
   <div class="event-grid">
-    <article class="event-card"><img src="assets/juta-saturday-04-july.jpg" alt="The Juta Saturdays event poster"><div class="event-info"><h3>The Juta Saturdays</h3><p>04 JULY 2026</p><div><strong>R50</strong><a href="#contact">Details</a></div></div></article>
-    <article class="event-card"><img src="assets/juta-saturdays-11-july.jpg" alt="The Juta Saturdays event poster"><div class="event-info"><h3>The Juta Saturdays</h3><p>11 JULY 2026</p><div><strong>R50</strong><a href="#contact">Details</a></div></div></article>
-    <article class="event-card featured"><img src="assets/metro-home-coming.jpg" alt="Metro Home Coming event poster"><div class="event-info"><h3>Metro Home Coming</h3><p>26 DECEMBER 2026</p><div><strong>R100</strong><a class="gold-btn small" href="#contact">Get Tickets</a></div></div></article>
-    <article class="event-card"><img src="assets/peoples-party.jpg" alt="The People's Party Winter Edition poster"><div class="event-info"><h3>The People's Party</h3><p>26 JUNE 2026</p><div><strong>R70</strong><a href="#contact">Details</a></div></div></article>
+    <article class="event-card"><img src="assets/the_juta_saturdays_04_july.jpg" alt="The Juta Saturdays 04 July"><div><span>04 JUL 2026</span><h3>THE JUTA SATURDAYS</h3><p>From R50</p><a href="#contact">BUY TICKETS</a></div></article>
+    <article class="event-card"><img src="assets/the_juta_saturdays_11_july.jpg" alt="The Juta Saturdays 11 July"><div><span>11 JUL 2026</span><h3>THE JUTA SATURDAYS</h3><p>From R50</p><a href="#contact">BUY TICKETS</a></div></article>
+    <article class="event-card"><img src="assets/metro_home_coming_26_december.jpg" alt="Metro Home Coming"><div><span>26 DEC 2026</span><h3>METRO HOME COMING</h3><p>From R100</p><a href="#contact">BUY TICKETS</a></div></article>
+    <article class="event-card"><img src="assets/the_peoples_party_reference.jpg" alt="The People's Party"><div><span>EVENT ARCHIVE</span><h3>THE PEOPLE'S PARTY</h3><p>View highlights</p><a href="#gallery">VIEW GALLERY</a></div></article>
   </div>
 </section>
 
-<section class="venue-section section" id="venue">
-  <div class="venue-image"><img src="assets/juta-venue.jpg" alt="The Juta River Lodge venue grounds with pool and thatched buildings"></div>
+<section class="venue-banner" id="venue">
+  <div class="venue-image"></div>
   <div class="venue-copy">
-    <p class="eyebrow">THE JUTA RIVER</p>
+    <div class="eyebrow">THE JUTA RIVER</div>
     <h2>THE PERFECT VENUE<br>FOR EVERY <em>OCCASION.</em></h2>
+    <div class="occasion-grid">
+      <span>♕<small>WEDDINGS</small></span><span>♡<small>BIRTHDAYS</small></span><span>▣<small>CORPORATE</small></span><span>♪<small>LIVE EVENTS</small></span><span>✦<small>PRIVATE PARTIES</small></span>
+    </div>
     <p>Beautiful spaces. Great vibes. Unforgettable experiences.</p>
-    <div class="occasion-grid"><span>♕<b>Birthdays</b></span><span>♡<b>Weddings</b></span><span>▦<b>Corporate</b></span><span>◇<b>Private Parties</b></span><span>♪<b>Live Events</b></span></div>
-    <a class="gold-btn" href="#contact">Book the Venue</a>
+    <a class="gold-btn" href="#contact">Book the venue</a>
   </div>
 </section>
 
-<section class="why section">
-  <div class="why-copy"><p class="eyebrow">THE EXPERIENCE</p><h2>WHY CHOOSE<br><em>THE JUTA RIVER?</em> ✦</h2><p>We go beyond just hosting events. We create moments that stay with you.</p></div>
-  <div class="benefits"><div><span>✓</span><b>Safe & Secure</b><p>Your safety matters.</p></div><div><span>▣</span><b>Ample Parking</b><p>Plenty of space.</p></div><div><span>♜</span><b>Food & Drinks</b><p>Great food & refreshments.</p></div><div><span>♪</span><b>Live Vibes</b><p>Top entertainment.</p></div></div>
+<section class="section gallery" id="gallery">
+  <div class="section-head"><h2>THE JUTA <em>EXPERIENCE</em></h2></div>
+  <div class="gallery-grid">
+    <img src="assets/the_juta_saturdays_04_july.jpg" alt="Juta event atmosphere">
+    <img src="assets/metro_home_coming_26_december.jpg" alt="Juta event poster">
+    <img src="assets/the_juta_saturdays_11_july.jpg" alt="Juta Saturday event">
+    <div class="gallery-placeholder">ADD<br>VENUE<br>PHOTO</div>
+    <div class="gallery-placeholder">ADD<br>FOOD<br>PHOTO</div>
+    <div class="gallery-placeholder">ADD<br>NIGHTLIFE<br>PHOTO</div>
+  </div>
 </section>
 
-<section class="contact section" id="contact">
-  <div><p class="eyebrow">PLAN YOUR NEXT EXPERIENCE</p><h2>LET'S MAKE IT<br><em>UNFORGETTABLE.</em></h2><p>Venue bookings, event enquiries and ticket information can all start here.</p></div>
-  <div class="contact-card"><div><span>📍</span><b>FIND US</b><p>The Juta River<br>Giyani, Ka Thomo<br>Limpopo, South Africa</p></div><div><span>◉</span><b>BOOK & ENQUIRE</b><p>Contact details to be added by the venue.</p></div><div><span>🎟</span><b>TICKETS</b><p>Ticket links will be added for each live event.</p></div></div>
+<section class="contact-section" id="contact">
+  <div class="contact-card"><span>⌖</span><h3>FIND US</h3><p>The Juta River<br>Giyani – Ka Thomo<br>Limpopo, South Africa</p><a href="https://www.google.com/maps/search/?api=1&query=The%20Juta%20River%20Giyani%20Ka%20Thomo">GET DIRECTIONS</a></div>
+  <div class="contact-card"><span>◉</span><h3>BOOK & ENQUIRIES</h3><p>Have questions or want to book an event?</p><a href="https://wa.me/">WHATSAPP US</a></div>
+  <div class="contact-card"><span>🎟</span><h3>TICKETS</h3><p>Get your tickets online or at selected outlets.</p><a href="#events">BUY TICKETS</a></div>
 </section>
 </main>
 
-<footer id="footer"><div class="footer-brand"><span class="brand-mark">♨</span><b>THE JUTA</b><small>RIVER LODGE</small><p>Giyani's destination for events, good food and great vibes.</p></div><div><b>QUICK LINKS</b><a href="#home">Home</a><a href="#events">Events</a><a href="#tickets">Tickets</a><a href="#venue">Venue</a></div><div><b>FOLLOW</b><p class="socials">◎　f　♪　◉</p></div><div><b>RESPONSIBLY</b><p>Enjoy responsibly. Not for sale to persons under the age of 18.</p></div></footer>
+<footer id="footer">
+  <div class="footer-brand"><strong>THE JUTA</strong><small>RIVER & EATING HOUSE</small><p>Giyani's premier destination for events, good food and good vibes.</p></div>
+  <div><h4>QUICK LINKS</h4><a href="#home">Home</a><a href="#events">Events</a><a href="#venue">Venue</a><a href="#gallery">Gallery</a><a href="#contact">Contact</a></div>
+  <div><h4>FOLLOW US</h4><div class="socials">Instagram • Facebook • TikTok • WhatsApp</div></div>
+  <div><h4>STAY UPDATED</h4><p>Get news about events and specials.</p><div class="newsletter"><input placeholder="Your email address"><button>→</button></div></div>
+  <div class="footer-bottom">© 2026 The Juta River. All rights reserved. <span>ENJOY RESPONSIBLY. NOT FOR SALE TO PERSONS UNDER 18.</span></div>
+</footer>
+<a class="whatsapp" href="https://wa.me/" aria-label="WhatsApp">◉</a>
 <script src="script.js"></script>
 </body>
 </html>

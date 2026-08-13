@@ -1,2 +1,10 @@
-const menuBtn=document.querySelector('.menu-btn');const mobileMenu=document.querySelector('.mobile-menu');menuBtn?.addEventListener('click',()=>{const open=mobileMenu.classList.toggle('open');menuBtn.setAttribute('aria-expanded',open)});mobileMenu?.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{mobileMenu.classList.remove('open');menuBtn?.setAttribute('aria-expanded','false')}));
-const countdown=document.querySelector('.countdown');function tick(){if(!countdown)return;const target=new Date(countdown.dataset.date).getTime();let diff=Math.max(0,target-Date.now());const d=Math.floor(diff/86400000);diff%=86400000;const h=Math.floor(diff/3600000);diff%=3600000;const m=Math.floor(diff/60000);const s=Math.floor((diff%60000)/1000);document.querySelector('[data-days]').textContent=String(d).padStart(2,'0');document.querySelector('[data-hours]').textContent=String(h).padStart(2,'0');document.querySelector('[data-minutes]').textContent=String(m).padStart(2,'0');document.querySelector('[data-seconds]').textContent=String(s).padStart(2,'0')}tick();setInterval(tick,1000);
+const target = new Date("2026-12-26T20:00:00+02:00").getTime();
+function tick(){
+  const now=Date.now(), diff=Math.max(0,target-now);
+  const d=Math.floor(diff/86400000), h=Math.floor(diff%86400000/3600000), m=Math.floor(diff%3600000/60000), s=Math.floor(diff%60000/1000);
+  document.getElementById("days").textContent=String(d).padStart(2,"0");
+  document.getElementById("hours").textContent=String(h).padStart(2,"0");
+  document.getElementById("mins").textContent=String(m).padStart(2,"0");
+  document.getElementById("secs").textContent=String(s).padStart(2,"0");
+}
+tick(); setInterval(tick,1000);
