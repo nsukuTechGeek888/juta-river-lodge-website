@@ -91,7 +91,7 @@ img{display:block;max-width:100%}
 .small-gold{color:var(--gold);font-size:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:800;white-space:nowrap}
 
 .venue{width:100%;max-width:none;min-height:650px;position:relative;display:flex;align-items:center;overflow:hidden}
-.venue-bg{position:absolute;inset:0;background:url("assets/venue-bg.jpg") center/cover no-repeat;transform:scale(1.02)}
+.venue-bg{background-image:url("assets/juta-river-outdoor-area.jpeg");position:absolute;inset:0;background:url("assets/venue-bg.jpg") center/cover no-repeat;transform:scale(1.02)}
 .venue-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,7,8,.96),rgba(3,7,8,.72) 38%,rgba(3,7,8,.18) 80%),linear-gradient(0deg,rgba(3,7,8,.78),transparent 35%,rgba(3,7,8,.25))}
 .venue-content{position:relative;z-index:2;width:min(var(--max),calc(100% - 56px));margin:auto}
 .venue-content h2{font-family:"Oswald";font-size:clamp(52px,6vw,86px);line-height:.9;text-transform:uppercase;letter-spacing:-.04em;margin:20px 0}
@@ -217,7 +217,7 @@ footer{border-top:1px solid var(--line);padding:60px max(28px,calc((100vw - var(
   .card-kicker{font-size:7px}.event-info h3{font-size:23px}.event-info p{font-size:10px}
   .small-gold{grid-column:2;margin-top:3px;font-size:9px}
   .venue{min-height:720px}
-  .venue-bg{background-position:62% center}
+  .venue-bg{background-image:url("assets/juta-river-outdoor-area.jpeg");background-position:62% center}
   .venue-overlay{background:linear-gradient(180deg,rgba(3,7,8,.72),rgba(3,7,8,.72) 35%,rgba(3,7,8,.96) 82%)}
   .venue-content h2{font-size:52px}
   .venue-content p{font-size:16px}
@@ -247,3 +247,32 @@ footer{border-top:1px solid var(--line);padding:60px max(28px,calc((100vw - var(
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   .reveal{opacity:1;transform:none}
 }
+
+@media(max-width:900px){
+  .gallery-track{
+    display:flex;
+    overflow-x:auto;
+    overflow-y:hidden;
+    gap:13px;
+    padding:2px 2px 14px;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .gallery-track::-webkit-scrollbar{display:none}
+  .gallery-card{
+    flex:0 0 min(76vw,360px);
+    height:480px;
+    scroll-snap-align:start;
+    border-radius:19px;
+  }
+  .gallery-hint{display:block}
+}
+@media(max-width:560px){
+  .gallery-card{flex-basis:82vw;height:470px}
+  .gallery-card figcaption{left:18px;right:18px;bottom:17px}
+  .gallery-card figcaption strong{font-size:22px}
+  .gallery-card figcaption small{font-size:9px}
+}
+
+.venue-bg{background-image:url("assets/juta-river-outdoor-area.jpeg")!important;}
