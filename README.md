@@ -1,40 +1,18 @@
-# The Juta River — Responsive Website Upgrade
+# The Juta River — Top Notch Redesign
 
-This version is focused on being polished, responsive and easy to use across desktop, tablet and mobile.
+A complete responsive event-first redesign.
 
 ## Included
-- Metro Home Coming poster as the hero visual
-- Juta River venue image in the “perfect venue for every occasion” section
-- Event posters and event cards
-- Responsive navigation with a mobile menu
-- Mobile sticky quick actions for Events, WhatsApp and Booking
-- Countdown to Metro Home Coming
-- Scroll progress indicator
-- Back-to-top button
-- Smooth scrolling and reveal animations
-- Responsive typography, cards, spacing and image sizing
-- Accessibility improvements and reduced-motion support
-- Lazy loading for below-the-fold event posters
+- Existing event posters retained
+- Venue, pool, outdoor-area and drinks photos added into dedicated editorial sections
+- Mobile hamburger navigation
+- Horizontal swipe event cards on mobile
+- Countdown to the next main event
+- Sticky mobile Events / WhatsApp / Book actions
+- Venue booking and WhatsApp CTAs
+- Responsive desktop/tablet/mobile layouts
+- Gallery, drinks and experience storytelling sections
+- Scroll progress and back-to-top interaction
 
-## Git
-Copy the contents of this folder into your existing Git repository, replacing the old `index.html`, `style.css`, `script.js` and `assets` files.
-
-Then run:
-
-```bash
-git status
-git add .
-git commit -m "Upgrade Juta River responsive website"
-git push
-```
-
-
-## Mobile update
-The mobile navigation uses a hamburger menu, while the Events section becomes a horizontal swipe carousel on screens up to 900px wide. If an older layout appears after pushing, hard-refresh the deployed site or clear the browser cache.
-
-
-## Latest vibe redesign
-- Venue photography is integrated into a story-driven venue section rather than a generic gallery.
-- Drinks photography is paired with the entertainment/bar story.
-- Mobile uses stacked, intentional image blocks instead of random gallery placement.
-- Navigation now includes a Drinks destination.
+## Run
+Open `index.html` in a browser or deploy the folder to GitHub Pages.
