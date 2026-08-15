@@ -31,3 +31,10 @@ git push
 
 ## Mobile update
 The mobile navigation uses a hamburger menu, while the Events section becomes a horizontal swipe carousel on screens up to 900px wide. If an older layout appears after pushing, hard-refresh the deployed site or clear the browser cache.
+
+
+## Latest vibe redesign
+- Venue photography is integrated into a story-driven venue section rather than a generic gallery.
+- Drinks photography is paired with the entertainment/bar story.
+- Mobile uses stacked, intentional image blocks instead of random gallery placement.
+- Navigation now includes a Drinks destination.

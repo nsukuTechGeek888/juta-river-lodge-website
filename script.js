@@ -1,85 +1,14 @@
-const $ = (s, root = document) => root.querySelector(s);
+const q=(s,r=document)=>r.querySelector(s);
+const menu=q(".hamburger"), mobile=q(".mobile-nav");
+function closeMenu(){if(!menu)return;menu.setAttribute("aria-expanded","false");mobile?.classList.remove("open");}
+menu?.addEventListener("click",()=>{const open=menu.getAttribute("aria-expanded")==="true";menu.setAttribute("aria-expanded",String(!open));mobile?.classList.toggle("open",!open)});
+document.querySelectorAll(".mobile-nav a").forEach(a=>a.addEventListener("click",closeMenu));
 
-function tick() {
-  document.querySelectorAll(".countdown").forEach(c => {
-    const target = new Date(c.dataset.date).getTime();
-    const diff = Math.max(0, target - Date.now());
-    const days = Math.floor(diff / 86400000);
-    const hours = Math.floor(diff / 3600000) % 24;
-    const mins = Math.floor(diff / 60000) % 60;
-    const secs = Math.floor(diff / 1000) % 60;
+function tick(){document.querySelectorAll(".timer").forEach(t=>{const d=Math.max(0,new Date(t.dataset.date)-Date.now());const vals=[Math.floor(d/864e5),Math.floor(d/36e5)%24,Math.floor(d/6e4)%60,Math.floor(d/1e3)%60];["days","hours","minutes","seconds"].forEach((n,i)=>q(`[data-${n}]`,t).textContent=String(vals[i]).padStart(2,"0"))})}
+tick();setInterval(tick,1000);
 
-    $("[data-days]", c).textContent = String(days).padStart(2, "0");
-    $("[data-hours]", c).textContent = String(hours).padStart(2, "0");
-    $("[data-minutes]", c).textContent = String(mins).padStart(2, "0");
-    $("[data-seconds]", c).textContent = String(secs).padStart(2, "0");
-  });
-}
-tick();
-setInterval(tick, 1000);
-
-// Mobile navigation
-const menu = $(".menu-btn");
-const mobileMenu = $(".mobile-menu");
-
-function closeMenu() {
-  if (!menu || !mobileMenu) return;
-  menu.setAttribute("aria-expanded", "false");
-  mobileMenu.setAttribute("aria-hidden", "true");
-  mobileMenu.classList.remove("open");
-  document.body.classList.remove("menu-open");
-}
-
-menu?.addEventListener("click", () => {
-  const open = menu.getAttribute("aria-expanded") === "true";
-  menu.setAttribute("aria-expanded", String(!open));
-  mobileMenu?.setAttribute("aria-hidden", String(open));
-  mobileMenu?.classList.toggle("open", !open);
-  document.body.classList.toggle("menu-open", !open);
-});
-
-document.querySelectorAll('a[href^="#"]').forEach(a => {
-  a.addEventListener("click", closeMenu);
-});
-
-// Scroll progress + back-to-top
-const progress = $(".scroll-progress span");
-const backTop = $(".back-top");
-
-function updateScrollUI() {
-  const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-  const percent = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
-  if (progress) progress.style.width = `${percent}%`;
-  backTop?.classList.toggle("show", window.scrollY > 650);
-}
-window.addEventListener("scroll", updateScrollUI, { passive: true });
-updateScrollUI();
-
-backTop?.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
-
-// Reveal sections as they enter the viewport
-const revealTargets = document.querySelectorAll(
-  ".section-head, .event-card, .venue-content, .experience-card, .booking-card"
-);
-revealTargets.forEach(el => el.classList.add("reveal"));
-
-if ("IntersectionObserver" in window) {
-  const observer = new IntersectionObserver((entries, obs) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
-        obs.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12 });
-  revealTargets.forEach(el => observer.observe(el));
-} else {
-  revealTargets.forEach(el => el.classList.add("visible"));
-}
-
-// Close the menu if the viewport is resized back to desktop.
-window.addEventListener("resize", () => {
-  if (window.innerWidth > 900) closeMenu();
-});
+const progress=q(".progress span"),top=q(".top");
+function scrollUI(){const max=document.documentElement.scrollHeight-innerHeight;progress.style.width=(max?scrollY/max*100:0)+"%";top.classList.toggle("show",scrollY>600)}
+addEventListener("scroll",scrollUI,{passive:true});scrollUI();
+top.addEventListener("click",()=>scrollTo({top:0,behavior:"smooth"}));
+addEventListener("resize",()=>{if(innerWidth>820)closeMenu()});
