@@ -1,6 +1,6 @@
 /*
 ===========================================
-JUTA RIVER EVENT ENGINE - SUPABASE VERSION
+JUTA RIVER EVENT ENGINE - WITH AUTOPLAY VIDEO
 ===========================================
 */
 
@@ -109,21 +109,41 @@ JUTA RIVER EVENT ENGINE - SUPABASE VERSION
             const hasVideo = heroEvent.videoId && heroEvent.videoId !== '';
             
             if (hasVideo && videoElement) {
+                // Set video source
                 videoElement.src = heroEvent.videoId;
                 videoElement.style.display = 'block';
                 videoElement.classList.add('show');
-                videoElement.play().catch(function(e) {
-                    console.log('Video autoplay prevented:', e);
-                });
                 
+                // 🎯 CRITICAL: These attributes enable autoplay
+                videoElement.muted = true;
+                videoElement.loop = true;
+                videoElement.playsInline = true;
+                videoElement.autoplay = true;
+                
+                // Force play with error handling
+                const playPromise = videoElement.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(function(error) {
+                        console.log('Video autoplay prevented, waiting for user interaction...');
+                        // Retry after user clicks anywhere
+                        document.addEventListener('click', function playOnClick() {
+                            videoElement.play();
+                            document.removeEventListener('click', playOnClick);
+                        }, { once: true });
+                    });
+                }
+                
+                // Hide image
                 if (imageElement) {
                     imageElement.classList.add('hide');
                 }
                 console.log('🎬 Playing background video for hero');
             } else if (imageElement) {
+                // Show image
                 imageElement.src = heroEvent.poster || 'assets/juta-river-pool-and-lodge.jpeg';
                 imageElement.classList.remove('hide');
                 
+                // Hide video
                 if (videoElement) {
                     videoElement.style.display = 'none';
                     videoElement.classList.remove('show');
