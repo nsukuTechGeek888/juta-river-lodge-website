@@ -30,6 +30,9 @@ const supabase = {
 
     async saveEvent(event) {
         try {
+            console.log('💾 Saving event:', event);
+            
+            // First check if event exists
             const checkResponse = await fetch(`${SUPABASE_URL}/rest/v1/events?id=eq.${event.id}`, {
                 headers: {
                     'apikey': SUPABASE_ANON_KEY,
@@ -37,9 +40,13 @@ const supabase = {
                     'Content-Type': 'application/json'
                 }
             });
+            
             const existing = await checkResponse.json();
+            console.log('📋 Existing event check:', existing);
 
+            // If event exists, update it
             if (existing && existing.length > 0) {
+                console.log('🔄 Updating existing event:', event.id);
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/events?id=eq.${event.id}`, {
                     method: 'PATCH',
                     headers: {
@@ -49,8 +56,20 @@ const supabase = {
                     },
                     body: JSON.stringify(event)
                 });
-                return await response.json();
+                
+                // Check if response is ok
+                if (!response.ok) {
+                    const text = await response.text();
+                    console.error('❌ Update failed:', response.status, text);
+                    throw new Error(`Update failed: ${response.status} - ${text}`);
+                }
+                
+                const result = await response.json();
+                console.log('✅ Update successful:', result);
+                return result;
             } else {
+                // Insert new event
+                console.log('➕ Inserting new event:', event.id);
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/events`, {
                     method: 'POST',
                     headers: {
@@ -60,7 +79,16 @@ const supabase = {
                     },
                     body: JSON.stringify(event)
                 });
-                return await response.json();
+                
+                if (!response.ok) {
+                    const text = await response.text();
+                    console.error('❌ Insert failed:', response.status, text);
+                    throw new Error(`Insert failed: ${response.status} - ${text}`);
+                }
+                
+                const result = await response.json();
+                console.log('✅ Insert successful:', result);
+                return result;
             }
         } catch(e) {
             console.error('Error saving event:', e);
@@ -70,6 +98,7 @@ const supabase = {
 
     async deleteEvent(id) {
         try {
+            console.log('🗑️ Deleting event:', id);
             const response = await fetch(`${SUPABASE_URL}/rest/v1/events?id=eq.${id}`, {
                 method: 'DELETE',
                 headers: {
@@ -77,7 +106,15 @@ const supabase = {
                     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                 }
             });
-            return response.ok;
+            
+            if (!response.ok) {
+                const text = await response.text();
+                console.error('❌ Delete failed:', response.status, text);
+                throw new Error(`Delete failed: ${response.status} - ${text}`);
+            }
+            
+            console.log('✅ Delete successful');
+            return true;
         } catch(e) {
             console.error('Error deleting event:', e);
             return false;
@@ -148,6 +185,7 @@ let events = [];
 let tempPosterData = "";
 let tempVideoFile = null;
 let tempVideoUrl = "";
+let editingEventId = null;
 
 // ============================================
 // LOAD EVENTS
@@ -208,21 +246,41 @@ function openEventEditor(event = null) {
     modal.classList.add("open");
     document.body.style.overflow = 'hidden';
     
-    document.getElementById("title").textContent = event ? "✏️ Edit event" : "➕ Add event";
-    document.getElementById("id").value = event?.id || "";
-    document.getElementById("name").value = event?.name || "";
-    document.getElementById("date").value = event?.date || "";
-    document.getElementById("time").value = event?.time || "20:00";
-    document.getElementById("location").value = event?.location || "The Juta River · Giyani";
-    document.getElementById("desc").value = event?.description || "";
-    document.getElementById("link").value = event?.link || "";
-    
-    const heroCheckbox = document.getElementById("hero");
-    if (heroCheckbox) heroCheckbox.checked = event?.hero === true;
-    
-    tempPosterData = event?.poster || "";
-    tempVideoUrl = event?.videoId || "";
-    tempVideoFile = null;
+    if (event) {
+        editingEventId = event.id;
+        document.getElementById("title").textContent = "✏️ Edit event";
+        document.getElementById("id").value = event.id;
+        document.getElementById("name").value = event.name || "";
+        document.getElementById("date").value = event.date || "";
+        document.getElementById("time").value = event.time || "20:00";
+        document.getElementById("location").value = event.location || "The Juta River · Giyani";
+        document.getElementById("desc").value = event.description || "";
+        document.getElementById("link").value = event.link || "";
+        
+        const heroCheckbox = document.getElementById("hero");
+        if (heroCheckbox) heroCheckbox.checked = event.hero === true;
+        
+        tempPosterData = event.poster || "";
+        tempVideoUrl = event.videoId || "";
+        tempVideoFile = null;
+    } else {
+        editingEventId = null;
+        document.getElementById("title").textContent = "➕ Add event";
+        document.getElementById("id").value = "";
+        document.getElementById("name").value = "";
+        document.getElementById("date").value = "";
+        document.getElementById("time").value = "20:00";
+        document.getElementById("location").value = "The Juta River · Giyani";
+        document.getElementById("desc").value = "";
+        document.getElementById("link").value = "";
+        
+        const heroCheckbox = document.getElementById("hero");
+        if (heroCheckbox) heroCheckbox.checked = false;
+        
+        tempPosterData = "";
+        tempVideoUrl = "";
+        tempVideoFile = null;
+    }
     
     updatePreview();
 }
@@ -233,6 +291,7 @@ function closeModal() {
     tempPosterData = "";
     tempVideoFile = null;
     tempVideoUrl = "";
+    editingEventId = null;
 }
 
 function updatePreview() {
@@ -241,7 +300,7 @@ function updatePreview() {
     let html = "";
     
     if (tempPosterData) {
-        html += `<img src="${tempPosterData}" alt="Poster preview">`;
+        html += `<img src="${tempPosterData}" alt="Poster preview" style="max-height:120px;border-radius:8px;"><br>`;
     }
     
     if (tempVideoUrl) {
@@ -261,7 +320,6 @@ function updatePreview() {
 // ============================================
 
 function showToast(message, type = 'info') {
-    // Remove existing toast
     const oldToast = document.querySelector('.toast');
     if (oldToast) oldToast.remove();
     
@@ -374,23 +432,25 @@ document.getElementById("video")?.addEventListener("change", function(e) {
 
 document.getElementById("form")?.addEventListener("submit", async function(e) {
     e.preventDefault();
-
+    
     const id = document.getElementById("id").value || crypto.randomUUID();
     const heroCheckbox = document.getElementById("hero");
     const isHero = heroCheckbox ? heroCheckbox.checked : false;
-
+    
+    // If this event is hero, un-hero all others
     if (isHero) {
         events.forEach(event => event.hero = false);
     }
-
+    
+    // Get poster to save
     let posterToSave = tempPosterData;
     if (!posterToSave) {
         const existing = events.find(e => e.id === id);
         posterToSave = existing?.poster || "../assets/metro-home-coming.jpg";
     }
-
+    
     let videoToSave = tempVideoUrl || "";
-
+    
     const newEvent = {
         id: id,
         name: document.getElementById("name").value.trim(),
@@ -403,7 +463,7 @@ document.getElementById("form")?.addEventListener("submit", async function(e) {
         videoId: videoToSave,
         hero: isHero
     };
-
+    
     try {
         showToast('💾 Saving event...', 'info');
         await supabase.saveEvent(newEvent);
@@ -411,7 +471,7 @@ document.getElementById("form")?.addEventListener("submit", async function(e) {
         closeModal();
         showToast('✅ Event saved successfully!', 'success');
     } catch(e) {
-        showToast('❌ Failed to save event', 'error');
+        showToast('❌ Failed to save event: ' + e.message, 'error');
         console.error(e);
     }
 });
@@ -432,7 +492,7 @@ window.deleteEvent = async function(id) {
         await loadEvents();
         showToast('✅ Event deleted successfully', 'success');
     } catch(e) {
-        showToast('❌ Failed to delete event', 'error');
+        showToast('❌ Failed to delete event: ' + e.message, 'error');
         console.error(e);
     }
 };
@@ -442,8 +502,15 @@ window.deleteEvent = async function(id) {
 // ============================================
 
 window.editEvent = function(id) {
+    console.log('✏️ Editing event:', id);
     const event = events.find(event => event.id === id);
-    if (event) openEventEditor(event);
+    if (event) {
+        console.log('📋 Event found:', event);
+        openEventEditor(event);
+    } else {
+        console.error('❌ Event not found:', id);
+        showToast('❌ Event not found', 'error');
+    }
 };
 
 // ============================================
@@ -474,7 +541,7 @@ function renderEvents() {
     
     const search = searchInput ? searchInput.value.toLowerCase() : "";
     const filter = filterSelect ? filterSelect.value : "all";
-
+    
     const filteredEvents = events.filter(event => {
         const date = new Date(`${event.date}T${event.time}`);
         const matchesSearch = `${event.name} ${event.location} ${event.description}`.toLowerCase().includes(search);
@@ -483,7 +550,7 @@ function renderEvents() {
         if (filter === "past") matchesFilter = date < now;
         return matchesSearch && matchesFilter;
     });
-
+    
     if (!filteredEvents.length) {
         listContainer.innerHTML = `
             <div style="text-align:center;padding:60px 20px;color:#555;">
@@ -494,7 +561,7 @@ function renderEvents() {
         `;
         return;
     }
-
+    
     listContainer.innerHTML = filteredEvents.map(event => {
         const eventDate = new Date(`${event.date}T${event.time}`);
         const posterSrc = event.poster || "../assets/metro-home-coming.jpg";
@@ -539,10 +606,7 @@ document.getElementById("filter")?.addEventListener("change", renderEvents);
 // ============================================
 
 document.addEventListener('keydown', function(e) {
-    // ESC to close modal
     if (e.key === 'Escape') closeModal();
-    
-    // Ctrl+N to add new event
     if (e.ctrlKey && e.key === 'n') {
         e.preventDefault();
         document.getElementById("add")?.click();
