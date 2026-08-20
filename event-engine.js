@@ -1,6 +1,6 @@
 /*
 ===========================================
-JUTA RIVER EVENT ENGINE - NO DEFAULT IMAGE
+JUTA RIVER EVENT ENGINE - WITH VIDEO CACHE
 ===========================================
 */
 
@@ -14,7 +14,7 @@ JUTA RIVER EVENT ENGINE - NO DEFAULT IMAGE
     const SUPABASE_ANON_KEY = window.SUPABASE_CONFIG?.anonKey || "sb_publishable_isUA857Cwiw5AXUEYxgccA_Ps3TozQF";
 
     // ============================================
-    // DOM ELEMENTS - Cached for speed
+    // DOM ELEMENTS
     // ============================================
 
     const videoElement = document.getElementById('hero-video');
@@ -26,22 +26,119 @@ JUTA RIVER EVENT ENGINE - NO DEFAULT IMAGE
     const timer = document.querySelector('.next-event .timer');
     
     // ============================================
-    // CACHED EVENTS
+    // CACHE KEYS
     // ============================================
 
-    let cachedEvents = [];
-    let isLoading = false;
-    let videoStarted = false;
+    const CACHE_KEY = 'juta_video_cache';
+    const EVENTS_KEY = 'juta_river_events_v2';
 
     // ============================================
-    // FETCH EVENTS WITH CACHE
+    // VIDEO CACHE
+    // ============================================
+
+    function getCachedVideo() {
+        try {
+            const cached = localStorage.getItem(CACHE_KEY);
+            return cached ? JSON.parse(cached) : null;
+        } catch(e) {
+            return null;
+        }
+    }
+
+    function setCachedVideo(videoData) {
+        try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify(videoData));
+        } catch(e) {}
+    }
+
+    // ============================================
+    // PLAY VIDEO IMMEDIATELY (from cache)
+    // ============================================
+
+    function playVideoImmediately(videoSrc) {
+        if (!videoElement || !videoSrc) return false;
+        
+        console.log('🎬 Playing video immediately from cache');
+        
+        // Set video source
+        videoElement.src = videoSrc;
+        videoElement.muted = true;
+        videoElement.loop = true;
+        videoElement.playsInline = true;
+        videoElement.autoplay = true;
+        videoElement.preload = 'auto';
+        
+        // Show video
+        videoElement.style.display = 'block';
+        videoElement.classList.add('show');
+        videoElement.style.opacity = '1';
+        
+        // Hide image
+        if (imageElement) {
+            imageElement.classList.remove('show');
+            imageElement.style.opacity = '0';
+            imageElement.style.display = 'none';
+        }
+        
+        // Try to play
+        const playPromise = videoElement.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(function() {
+                // Will retry on interaction
+            });
+        }
+        
+        return true;
+    }
+
+    // ============================================
+    // SHOW IMAGE (when no video)
+    // ============================================
+
+    function showImageImmediately(imageSrc) {
+        if (!imageElement) return;
+        
+        console.log('🖼️ Showing image immediately');
+        
+        // Hide video
+        if (videoElement) {
+            videoElement.style.display = 'none';
+            videoElement.classList.remove('show');
+            videoElement.pause();
+        }
+        
+        // Show image
+        if (imageSrc) {
+            imageElement.src = imageSrc;
+        }
+        imageElement.style.display = 'block';
+        imageElement.classList.add('show');
+        imageElement.style.opacity = '1';
+    }
+
+    // ============================================
+    // LOAD CACHED VIDEO ON PAGE LOAD
+    // ============================================
+
+    function loadCachedVideo() {
+        const cached = getCachedVideo();
+        if (cached && cached.videoId && cached.videoId !== '' && cached.videoId !== 'null') {
+            // We have a cached video - play it immediately
+            playVideoImmediately(cached.videoId);
+            return true;
+        } else if (cached && cached.poster) {
+            // No video, show cached poster
+            showImageImmediately(cached.poster);
+            return true;
+        }
+        return false;
+    }
+
+    // ============================================
+    // FETCH EVENTS (background refresh)
     // ============================================
 
     async function fetchEvents() {
-        if (cachedEvents.length > 0) {
-            return cachedEvents;
-        }
-        
         try {
             const response = await fetch(`${SUPABASE_URL}/rest/v1/events?select=*&order=date.asc`, {
                 headers: {
@@ -51,9 +148,8 @@ JUTA RIVER EVENT ENGINE - NO DEFAULT IMAGE
                 }
             });
             const data = await response.json();
-            cachedEvents = data || [];
-            console.log('📋 Loaded events from Supabase:', cachedEvents.length);
-            return cachedEvents;
+            console.log('📋 Loaded events from Supabase:', data.length);
+            return data || [];
         } catch(e) {
             console.error('Error fetching events:', e);
             return [];
@@ -89,88 +185,189 @@ JUTA RIVER EVENT ENGINE - NO DEFAULT IMAGE
     }
 
     // ============================================
-    // PLAY VIDEO FUNCTION
+    // UPDATE HERO FROM FRESH DATA
     // ============================================
 
-    function playVideo() {
-        if (!videoElement || !videoElement.src || videoElement.src === '') {
-            console.log('📹 No video source, showing image');
-            showImage();
-            return;
-        }
+    function updateHeroFromFreshData(heroEvent) {
+        if (!heroEvent) return;
         
-        videoElement.muted = true;
-        videoElement.loop = true;
-        videoElement.playsInline = true;
-        videoElement.autoplay = true;
+        // Update text
+        if (heroName) heroName.textContent = heroEvent.name || 'Event';
         
-        // Show video with fade
-        videoElement.style.display = 'block';
-        videoElement.classList.add('show');
-        videoElement.style.opacity = '1';
-        
-        // Hide image
-        if (imageElement) {
-            imageElement.classList.remove('show');
-            imageElement.style.opacity = '0';
-            imageElement.style.display = 'none';
-        }
-        
-        const playPromise = videoElement.play();
-        if (playPromise !== undefined) {
-            playPromise.then(function() {
-                console.log('🎬 Video playing');
-                videoStarted = true;
-            }).catch(function(error) {
-                console.log('🔇 Video autoplay blocked, waiting for interaction...');
-                // Try again on interaction
-                const playOnInteraction = function() {
-                    videoElement.play().catch(function() {});
-                    document.removeEventListener('click', playOnInteraction);
-                    document.removeEventListener('touchstart', playOnInteraction);
-                };
-                document.addEventListener('click', playOnInteraction, { once: true });
-                document.addEventListener('touchstart', playOnInteraction, { once: true });
+        if (heroDate) {
+            const dateObj = new Date(heroEvent.date + 'T00:00:00');
+            const formattedDate = dateObj.toLocaleDateString('en-ZA', { 
+                day: '2-digit', 
+                month: 'short', 
+                year: 'numeric' 
             });
+            heroDate.textContent = formattedDate + ' · GIYANI';
+        }
+        
+        if (heroImg) {
+            heroImg.src = heroEvent.poster || 'assets/metro-home-coming.jpg';
+            heroImg.alt = heroEvent.name || 'Event';
+        }
+        
+        if (timer) {
+            timer.dataset.date = heroEvent.date + 'T' + (heroEvent.time || '20:00') + ':00+02:00';
+        }
+        
+        // Update cache with new video/poster
+        const hasVideo = heroEvent.videoId && 
+                        heroEvent.videoId !== '' && 
+                        heroEvent.videoId !== 'null' &&
+                        heroEvent.videoId !== 'undefined';
+        
+        // Update cache
+        setCachedVideo({
+            videoId: hasVideo ? heroEvent.videoId : null,
+            poster: heroEvent.poster || null
+        });
+        
+        // Update background if video changed
+        if (hasVideo && videoElement) {
+            const currentSrc = videoElement.src;
+            const newSrc = heroEvent.videoId;
+            
+            if (currentSrc !== newSrc) {
+                console.log('🎬 Video changed, updating...');
+                videoElement.src = newSrc;
+                videoElement.load();
+                
+                // Play when ready
+                videoElement.oncanplay = function() {
+                    playVideoImmediately(newSrc);
+                    videoElement.oncanplay = null;
+                };
+                
+                // If already loaded enough
+                if (videoElement.readyState >= 3) {
+                    playVideoImmediately(newSrc);
+                }
+                
+                // Fallback: try after delay
+                setTimeout(function() {
+                    if (!videoElement.currentTime) {
+                        playVideoImmediately(newSrc);
+                    }
+                }, 1000);
+            }
+        } else if (!hasVideo && imageElement) {
+            // No video - show poster
+            showImageImmediately(heroEvent.poster || 'assets/juta-river-pool-and-lodge.jpeg');
         }
     }
 
     // ============================================
-    // SHOW IMAGE (when no video)
+    // RENDER EVENT CARDS
     // ============================================
 
-    function showImage(imageSrc) {
-        if (!imageElement) return;
+    function renderEventCards(events) {
+        if (!eventScroller) return;
         
-        // Hide video
-        if (videoElement) {
-            videoElement.style.display = 'none';
-            videoElement.classList.remove('show');
-            videoElement.pause();
-        }
+        const now = new Date();
         
-        // Show image
-        if (imageSrc) {
-            imageElement.src = imageSrc;
-        }
-        imageElement.style.display = 'block';
-        imageElement.classList.add('show');
-        imageElement.style.opacity = '1';
-        console.log('🖼️ Showing background image');
+        // Only render if empty
+        if (eventScroller.children.length > 0) return;
+        
+        const sorted = [...events].sort((a, b) => {
+            const aDate = getEventDate(a);
+            const bDate = getEventDate(b);
+            const aFuture = aDate >= now;
+            const bFuture = bDate >= now;
+            
+            if (aFuture && !bFuture) return -1;
+            if (!aFuture && bFuture) return 1;
+            return aDate - bDate;
+        });
+
+        let html = '';
+        
+        sorted.forEach((event, index) => {
+            const { day, month, year } = formatDate(event.date);
+            const isUpcoming = getEventDate(event) >= now;
+            
+            let tag = '';
+            if (event.hero) {
+                tag = '<span class="tag">★ FEATURED</span>';
+            } else if (isUpcoming && index === 0) {
+                tag = '<span class="tag">NEXT EVENT</span>';
+            } else if (isUpcoming) {
+                tag = '<span class="tag">UPCOMING</span>';
+            }
+
+            let cardLink = '';
+            if (event.link && event.link !== '' && event.link !== '#') {
+                cardLink = `<a class="card-link" href="${event.link}">Get Tickets ↗</a>`;
+            }
+
+            const posterSrc = event.poster || 'assets/metro-home-coming.jpg';
+
+            html += `
+                <article class="event-card ${event.hero ? 'featured' : ''}" data-event-id="${event.id}">
+                    <div class="poster">
+                        <img src="${posterSrc}" 
+                             alt="${escapeHTML(event.name)}"
+                             onerror="this.src='assets/metro-home-coming.jpg'">
+                        ${tag}
+                    </div>
+                    <div class="event-meta">
+                        <div class="date">
+                            <b>${day}</b>
+                            <small>${month}<br>${year}</small>
+                        </div>
+                        <div>
+                            <span>${escapeHTML(event.location || 'THE JUTA RIVER PRESENTS')}</span>
+                            <h3>${escapeHTML(event.name)}</h3>
+                            <p>${escapeHTML(event.description || 'Live at The Juta River')}</p>
+                        </div>
+                    </div>
+                    ${cardLink}
+                </article>
+            `;
+        });
+
+        eventScroller.innerHTML = html;
+        console.log(`✅ Rendered ${sorted.length} event cards`);
     }
 
     // ============================================
-    // RENDER ALL EVENTS
+    // COUNTDOWN TIMER
+    // ============================================
+
+    function updateCountdown() {
+        document.querySelectorAll('.timer').forEach(function(timer) {
+            const targetDate = new Date(timer.dataset.date);
+            if (isNaN(targetDate.getTime())) return;
+            
+            const diff = Math.max(0, targetDate.getTime() - Date.now());
+            
+            const days = Math.floor(diff / 86400000);
+            const hours = Math.floor((diff % 86400000) / 3600000);
+            const minutes = Math.floor((diff % 3600000) / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            
+            const daysEl = timer.querySelector('[data-days]');
+            const hoursEl = timer.querySelector('[data-hours]');
+            const minutesEl = timer.querySelector('[data-minutes]');
+            const secondsEl = timer.querySelector('[data-seconds]');
+            
+            if (daysEl) daysEl.textContent = String(days).padStart(3, '0');
+            if (hoursEl) hoursEl.textContent = String(hours).padStart(2, '0');
+            if (minutesEl) minutesEl.textContent = String(minutes).padStart(2, '0');
+            if (secondsEl) secondsEl.textContent = String(seconds).padStart(2, '0');
+        });
+    }
+
+    // ============================================
+    // MAIN RENDER FUNCTION
     // ============================================
 
     async function renderAllEvents() {
-        if (isLoading) return;
-        isLoading = true;
-        
-        console.log('🔄 Rendering all events...');
+        console.log('🔄 Refreshing events in background...');
         
         const events = await fetchEvents();
-        const now = new Date();
         
         if (!events || events.length === 0) {
             if (eventScroller) {
@@ -180,14 +377,11 @@ JUTA RIVER EVENT ENGINE - NO DEFAULT IMAGE
                     </p>
                 `;
             }
-            isLoading = false;
             return;
         }
 
-        // ============================================
-        // 1. UPDATE HERO BACKGROUND
-        // ============================================
-
+        // Find hero event
+        const now = new Date();
         let heroEvent = events.find(e => e.hero === true);
         
         if (!heroEvent) {
@@ -197,226 +391,49 @@ JUTA RIVER EVENT ENGINE - NO DEFAULT IMAGE
             heroEvent = upcoming[0] || events[0];
         }
 
-        console.log('⭐ Hero event:', heroEvent?.name || 'None');
-
-        if (heroEvent) {
-            const hasVideo = heroEvent.videoId && 
-                            heroEvent.videoId !== '' && 
-                            heroEvent.videoId !== 'null' &&
-                            heroEvent.videoId !== 'undefined';
-            
-            // Update hero text
-            if (heroName) heroName.textContent = heroEvent.name || 'Event';
-            
-            if (heroDate) {
-                const dateObj = new Date(heroEvent.date + 'T00:00:00');
-                const formattedDate = dateObj.toLocaleDateString('en-ZA', { 
-                    day: '2-digit', 
-                    month: 'short', 
-                    year: 'numeric' 
-                });
-                heroDate.textContent = formattedDate + ' · GIYANI';
-            }
-            
-            if (heroImg) {
-                heroImg.src = heroEvent.poster || 'assets/metro-home-coming.jpg';
-                heroImg.alt = heroEvent.name || 'Event';
-            }
-            
-            if (timer) {
-                timer.dataset.date = heroEvent.date + 'T' + (heroEvent.time || '20:00') + ':00+02:00';
-            }
-            
-            // ============================================
-            // UPDATE BACKGROUND - VIDEO OR IMAGE
-            // ============================================
-            
-            if (hasVideo && videoElement) {
-                console.log('🎬 Video found for hero event');
-                
-                // Check if video source changed
-                const currentSrc = videoElement.src;
-                const newSrc = heroEvent.videoId;
-                
-                if (currentSrc !== newSrc) {
-                    videoElement.src = newSrc;
-                    videoElement.load();
-                    
-                    // Play when ready
-                    videoElement.oncanplay = function() {
-                        playVideo();
-                        videoElement.oncanplay = null;
-                    };
-                    
-                    // Also try after a short delay (for slow connections)
-                    setTimeout(function() {
-                        if (!videoStarted) {
-                            playVideo();
-                        }
-                    }, 2000);
-                    
-                    // If video is already loaded enough, play immediately
-                    if (videoElement.readyState >= 3) {
-                        playVideo();
-                    }
-                } else {
-                    // Same video, just play it
-                    playVideo();
-                }
-            } else {
-                // No video - show poster image
-                console.log('🖼️ No video found, showing poster image');
-                showImage(heroEvent.poster || 'assets/juta-river-pool-and-lodge.jpeg');
-            }
-        }
-
-        // ============================================
-        // 2. RENDER EVENT CARDS
-        // ============================================
-
-        if (!eventScroller) {
-            console.warn('⚠️ #event-list not found!');
-            isLoading = false;
-            return;
-        }
-
-        // Only render if empty (first time)
-        if (eventScroller.children.length === 0) {
-            const sorted = [...events].sort((a, b) => {
-                const aDate = getEventDate(a);
-                const bDate = getEventDate(b);
-                const aFuture = aDate >= now;
-                const bFuture = bDate >= now;
-                
-                if (aFuture && !bFuture) return -1;
-                if (!aFuture && bFuture) return 1;
-                return aDate - bDate;
-            });
-
-            let html = '';
-            
-            sorted.forEach((event, index) => {
-                const { day, month, year } = formatDate(event.date);
-                const isUpcoming = getEventDate(event) >= now;
-                
-                let tag = '';
-                if (event.hero) {
-                    tag = '<span class="tag">★ FEATURED</span>';
-                } else if (isUpcoming && index === 0) {
-                    tag = '<span class="tag">NEXT EVENT</span>';
-                } else if (isUpcoming) {
-                    tag = '<span class="tag">UPCOMING</span>';
-                }
-
-                let cardLink = '';
-                if (event.link && event.link !== '' && event.link !== '#') {
-                    cardLink = `<a class="card-link" href="${event.link}">Get Tickets ↗</a>`;
-                }
-
-                const posterSrc = event.poster || 'assets/metro-home-coming.jpg';
-
-                html += `
-                    <article class="event-card ${event.hero ? 'featured' : ''}" data-event-id="${event.id}">
-                        <div class="poster">
-                            <img src="${posterSrc}" 
-                                 alt="${escapeHTML(event.name)}"
-                                 onerror="this.src='assets/metro-home-coming.jpg'">
-                            ${tag}
-                        </div>
-                        <div class="event-meta">
-                            <div class="date">
-                                <b>${day}</b>
-                                <small>${month}<br>${year}</small>
-                            </div>
-                            <div>
-                                <span>${escapeHTML(event.location || 'THE JUTA RIVER PRESENTS')}</span>
-                                <h3>${escapeHTML(event.name)}</h3>
-                                <p>${escapeHTML(event.description || 'Live at The Juta River')}</p>
-                            </div>
-                        </div>
-                        ${cardLink}
-                    </article>
-                `;
-            });
-
-            eventScroller.innerHTML = html;
-            console.log(`✅ Rendered ${sorted.length} event cards`);
-        }
-
-        // ============================================
-        // 3. COUNTDOWN TIMER
-        // ============================================
-
-        function updateCountdown() {
-            document.querySelectorAll('.timer').forEach(function(timer) {
-                const targetDate = new Date(timer.dataset.date);
-                if (isNaN(targetDate.getTime())) return;
-                
-                const diff = Math.max(0, targetDate.getTime() - Date.now());
-                
-                const days = Math.floor(diff / 86400000);
-                const hours = Math.floor((diff % 86400000) / 3600000);
-                const minutes = Math.floor((diff % 3600000) / 60000);
-                const seconds = Math.floor((diff % 60000) / 1000);
-                
-                const daysEl = timer.querySelector('[data-days]');
-                const hoursEl = timer.querySelector('[data-hours]');
-                const minutesEl = timer.querySelector('[data-minutes]');
-                const secondsEl = timer.querySelector('[data-seconds]');
-                
-                if (daysEl) daysEl.textContent = String(days).padStart(3, '0');
-                if (hoursEl) hoursEl.textContent = String(hours).padStart(2, '0');
-                if (minutesEl) minutesEl.textContent = String(minutes).padStart(2, '0');
-                if (secondsEl) secondsEl.textContent = String(seconds).padStart(2, '0');
-            });
-        }
-
+        // Update hero from fresh data
+        updateHeroFromFreshData(heroEvent);
+        
+        // Render event cards
+        renderEventCards(events);
+        
+        // Update countdown
         if (window._countdownInterval) {
             clearInterval(window._countdownInterval);
         }
-
         updateCountdown();
         window._countdownInterval = setInterval(updateCountdown, 1000);
-        
-        isLoading = false;
     }
 
     // ============================================
-    // WATCH FOR STORAGE CHANGES
+    // INITIALIZATION - LOAD CACHED VIDEO FIRST
     // ============================================
 
-    window.addEventListener('storage', function(e) {
-        if (e.key === 'juta_river_events_v2') {
-            console.log('🔄 Storage changed, re-rendering...');
-            cachedEvents = [];
-            videoStarted = false;
-            renderAllEvents();
-        }
-    });
+    // 1. Load cached video immediately (0ms)
+    const hasCached = loadCachedVideo();
+    
+    if (!hasCached) {
+        // No cached video - show dark background briefly
+        console.log('⏳ No cached video, waiting for data...');
+    }
 
-    document.addEventListener('visibilitychange', function() {
-        if (!document.hidden) {
-            console.log('👁️ Tab became visible');
-            // Retry playing video
-            if (videoElement && videoElement.src && videoElement.src !== '') {
-                playVideo();
-            }
-        }
-    });
-
-    // ============================================
-    // INITIAL RENDER
-    // ============================================
-
+    // 2. Then fetch fresh data in background
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
         renderAllEvents();
     } else {
         document.addEventListener('DOMContentLoaded', renderAllEvents);
     }
 
-    setTimeout(renderAllEvents, 100);
+    // 3. Also fetch after a small delay to ensure cache is populated
+    setTimeout(renderAllEvents, 500);
 
-    console.log('🚀 Event engine initialized with Supabase!');
-    console.log('📋 No default image - video or event poster will be shown');
+    // 4. Watch for video autoplay issues
+    document.addEventListener('click', function() {
+        if (videoElement && videoElement.src && !videoElement.currentTime) {
+            videoElement.play().catch(function() {});
+        }
+    }, { once: true });
 
+    console.log('🚀 Event engine initialized with video cache!');
+    console.log('📋 Video loads instantly from cache, data refreshes in background');
 })();
