@@ -1,6 +1,6 @@
 /*
 ===========================================
-JUTA RIVER EVENT ENGINE - WITH READY STATE
+JUTA RIVER EVENT ENGINE - OPTIMIZED
 ===========================================
 */
 
@@ -26,7 +26,7 @@ JUTA RIVER EVENT ENGINE - WITH READY STATE
     const timer = document.querySelector('.next-event .timer');
 
     // ============================================
-    // FETCH EVENTS FROM SUPABASE
+    // FETCH EVENTS
     // ============================================
 
     async function fetchEvents() {
@@ -76,7 +76,7 @@ JUTA RIVER EVENT ENGINE - WITH READY STATE
     }
 
     // ============================================
-    // PLAY VIDEO
+    // PLAY VIDEO WITH READY CHECK
     // ============================================
 
     function playVideo() {
@@ -104,15 +104,25 @@ JUTA RIVER EVENT ENGINE - WITH READY STATE
         if (playPromise !== undefined) {
             playPromise.then(function() {
                 console.log('🎬 Video is playing');
-                if (typeof window.markVideoPlayed === 'function') {
-                    window.markVideoPlayed();
-                }
+                setTimeout(function() {
+                    if (typeof window.markVideoReady === 'function') {
+                        window.markVideoReady();
+                    }
+                }, 400);
             }).catch(function() {
                 console.log('🔇 Video autoplay blocked');
-                if (typeof window.markVideoPlayed === 'function') {
-                    window.markVideoPlayed();
-                }
+                setTimeout(function() {
+                    if (typeof window.markVideoReady === 'function') {
+                        window.markVideoReady();
+                    }
+                }, 300);
             });
+        } else {
+            setTimeout(function() {
+                if (typeof window.markVideoReady === 'function') {
+                    window.markVideoReady();
+                }
+            }, 800);
         }
     }
 
@@ -132,10 +142,11 @@ JUTA RIVER EVENT ENGINE - WITH READY STATE
         imageElement.classList.add('show');
         imageElement.style.opacity = '1';
         
-        // No video, so mark as ready
-        if (typeof window.markVideoPlayed === 'function') {
-            window.markVideoPlayed();
-        }
+        setTimeout(function() {
+            if (typeof window.markVideoReady === 'function') {
+                window.markVideoReady();
+            }
+        }, 300);
     }
 
     // ============================================
@@ -156,11 +167,8 @@ JUTA RIVER EVENT ENGINE - WITH READY STATE
                     </p>
                 `;
             }
-            if (typeof window.markEventsRendered === 'function') {
-                window.markEventsRendered();
-            }
-            if (typeof window.checkReadyState === 'function') {
-                window.checkReadyState();
+            if (typeof window.markEventsReady === 'function') {
+                window.markEventsReady();
             }
             return;
         }
@@ -201,7 +209,7 @@ JUTA RIVER EVENT ENGINE - WITH READY STATE
             timer.dataset.date = heroEvent.date + 'T' + (heroEvent.time || '20:00') + ':00+02:00';
         }
 
-        // Update background
+        // Update background - VIDEO
         if (heroEvent) {
             const hasVideo = heroEvent.videoId && 
                             heroEvent.videoId !== '' && 
@@ -209,33 +217,28 @@ JUTA RIVER EVENT ENGINE - WITH READY STATE
                             heroEvent.videoId !== 'undefined';
             
             if (hasVideo && videoElement) {
-                // Set video source
                 const currentSrc = videoElement.src;
                 const newSrc = heroEvent.videoId;
                 
-                // Only update if changed
                 if (currentSrc !== newSrc) {
                     videoElement.src = newSrc;
                     videoElement.load();
                 }
                 
-                // Try to play
                 videoElement.oncanplay = function() {
                     playVideo();
                     videoElement.oncanplay = null;
                 };
                 
-                // If video is already loaded enough
                 if (videoElement.readyState >= 3) {
                     playVideo();
                 }
                 
-                // Fallback: try after delay
                 setTimeout(function() {
                     if (!videoElement.currentTime) {
                         playVideo();
                     }
-                }, 1500);
+                }, 1000);
             } else {
                 showImage(heroEvent.poster || 'assets/juta-river-pool-and-lodge.jpeg');
             }
@@ -247,16 +250,12 @@ JUTA RIVER EVENT ENGINE - WITH READY STATE
 
         if (!eventScroller) {
             console.warn('⚠️ #event-list not found!');
-            if (typeof window.markEventsRendered === 'function') {
-                window.markEventsRendered();
-            }
-            if (typeof window.checkReadyState === 'function') {
-                window.checkReadyState();
+            if (typeof window.markEventsReady === 'function') {
+                window.markEventsReady();
             }
             return;
         }
 
-        // Clear and render
         eventScroller.innerHTML = '';
 
         const sorted = [...events].sort((a, b) => {
@@ -276,8 +275,8 @@ JUTA RIVER EVENT ENGINE - WITH READY STATE
                     No events found.
                 </p>
             `;
-            if (typeof window.markEventsRendered === 'function') {
-                window.markEventsRendered();
+            if (typeof window.markEventsReady === 'function') {
+                window.markEventsReady();
             }
             return;
         }
@@ -331,9 +330,9 @@ JUTA RIVER EVENT ENGINE - WITH READY STATE
         eventScroller.innerHTML = html;
         console.log(`✅ Rendered ${sorted.length} event cards`);
 
-        // Tell loading screen events are ready
-        if (typeof window.markEventsRendered === 'function') {
-            window.markEventsRendered();
+        // Mark events ready
+        if (typeof window.markEventsReady === 'function') {
+            window.markEventsReady();
         }
 
         // ============================================
@@ -370,21 +369,15 @@ JUTA RIVER EVENT ENGINE - WITH READY STATE
 
         updateCountdown();
         window._countdownInterval = setInterval(updateCountdown, 1000);
-
-        // Check if loading screen can hide
-        if (typeof window.checkReadyState === 'function') {
-            window.checkReadyState();
-        }
     }
 
     // ============================================
-    // WATCH FOR STORAGE CHANGES
+    // WATCH FOR CHANGES
     // ============================================
 
     window.addEventListener('storage', function(e) {
         if (e.key === 'juta_river_events_v2') {
             console.log('🔄 Storage changed, re-rendering...');
-            // Clear and re-render
             renderAllEvents();
         }
     });
@@ -392,7 +385,6 @@ JUTA RIVER EVENT ENGINE - WITH READY STATE
     document.addEventListener('visibilitychange', function() {
         if (!document.hidden) {
             console.log('👁️ Tab became visible');
-            // Retry video if needed
             if (videoElement && videoElement.src && videoElement.src !== '' && videoElement.paused) {
                 playVideo();
             }
@@ -403,14 +395,12 @@ JUTA RIVER EVENT ENGINE - WITH READY STATE
     // INITIALIZATION
     // ============================================
 
-    // Run initial render
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
         renderAllEvents();
     } else {
         document.addEventListener('DOMContentLoaded', renderAllEvents);
     }
 
-    // Also re-render after delays to ensure everything loads
     setTimeout(renderAllEvents, 500);
     setTimeout(renderAllEvents, 1000);
 
