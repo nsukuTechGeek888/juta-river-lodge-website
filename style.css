@@ -1,13 +1,14 @@
-/* ===== LOADING SCREEN ===== */
+/* ===== COOL LOADING SCREEN ===== */
 #loadingScreen {
     position: fixed;
     inset: 0;
-    z-index: 9999;
+    z-index: 99999;
     background: #070909;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: opacity 0.8s ease, visibility 0.8s ease;
+    overflow: hidden;
 }
 
 #loadingScreen.hidden {
@@ -16,51 +17,164 @@
     pointer-events: none;
 }
 
+#loadingScreen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+        radial-gradient(ellipse at 20% 50%, rgba(241, 196, 94, 0.05) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 50%, rgba(241, 196, 94, 0.05) 0%, transparent 60%);
+    animation: bgPulse 4s ease-in-out infinite;
+}
+
+@keyframes bgPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
 .loader-container {
+    position: relative;
     text-align: center;
     color: #f5f0e7;
+    z-index: 1;
+    padding: 20px;
 }
 
 .loader-logo {
-    font-size: 64px;
+    font-size: 80px;
     color: #f1c45e;
-    margin-bottom: 16px;
-    animation: pulse 1.5s ease-in-out infinite;
+    margin-bottom: 24px;
+    display: inline-block;
+    animation: floatLogo 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 40px rgba(241, 196, 94, 0.15));
+}
+
+@keyframes floatLogo {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-15px) scale(1.05); }
 }
 
 .loader-text {
     font-family: 'Playfair Display', serif;
-    font-size: 24px;
-    letter-spacing: 0.3em;
+    font-size: 32px;
+    letter-spacing: 0.4em;
     text-transform: uppercase;
     color: #f5f0e7;
-    margin-bottom: 24px;
+    margin-bottom: 8px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.3s forwards;
 }
 
-.loader-spinner {
-    width: 40px;
-    height: 40px;
-    margin: 0 auto;
-    border: 2px solid rgba(241, 196, 94, 0.1);
-    border-top-color: #f1c45e;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-.loader-subtext {
+.loader-sub {
+    font-family: 'DM Sans', sans-serif;
     font-size: 11px;
-    color: #666;
-    letter-spacing: 0.15em;
-    margin-top: 20px;
+    letter-spacing: 0.2em;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.6s forwards;
 }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+.loader-ring {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+}
+
+.loader-ring svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.loader-ring .bg {
+    fill: none;
+    stroke: rgba(241, 196, 94, 0.08);
+    stroke-width: 2;
+}
+
+.loader-ring .progress-ring {
+    fill: none;
+    stroke: #f1c45e;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 157.08;
+    stroke-dashoffset: 157.08;
+    animation: fillRing 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(241, 196, 94, 0.3));
+}
+
+@keyframes fillRing {
+    0% { stroke-dashoffset: 157.08; }
+    50% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: -157.08; }
+}
+
+.loader-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 32px;
+}
+
+.loader-dots span {
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #f1c45e;
+    animation: dotBounce 1.4s ease-in-out infinite;
+}
+
+.loader-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+.loader-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+.loader-dots span:nth-child(4) {
+    animation-delay: 0.6s;
+}
+.loader-dots span:nth-child(5) {
+    animation-delay: 0.8s;
+}
+
+@keyframes dotBounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+    40% { transform: scale(1); opacity: 1; }
+}
+
+.loader-container::before,
+.loader-container::after {
+    content: '';
+    position: absolute;
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, rgba(241, 196, 94, 0.2), transparent);
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.loader-container::before {
+    left: -40px;
+    animation: linePulse 3s ease-in-out infinite;
+}
+
+.loader-container::after {
+    right: -40px;
+    animation: linePulse 3s ease-in-out infinite 1.5s;
+}
+
+@keyframes linePulse {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1; }
 }
 
 /* Main content starts hidden */

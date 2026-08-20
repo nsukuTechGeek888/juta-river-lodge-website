@@ -12,6 +12,31 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- ===== LOADING SCREEN ===== -->
+<div id="loadingScreen">
+  <div class="loader-container">
+    <div class="loader-logo">♨</div>
+    <div class="loader-text">THE JUTA RIVER</div>
+    <div class="loader-sub">Lodge &amp; Events</div>
+    
+    <div class="loader-ring">
+      <svg viewBox="0 0 50 50">
+        <circle class="bg" cx="25" cy="25" r="25"/>
+        <circle class="progress-ring" cx="25" cy="25" r="25"/>
+      </svg>
+    </div>
+    
+    <div class="loader-dots">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+</div>
+
 <div class="grain"></div><div class="progress"><span></span></div>
 
 <header class="header">
@@ -41,10 +66,8 @@
 <section class="hero">
   <!-- Hero Background - Video or Image -->
   <div class="hero-bg-container">
-    <!-- Video element with preload for fast loading -->
     <video class="hero-video" id="hero-video" muted loop playsinline autoplay preload="auto" style="display:none;"></video>
-    <!-- Image fallback - hidden by default, shown only when no video -->
-    <img class="hero-bg" id="hero-bg-img" style="display:none;opacity:0;">
+    <img class="hero-bg" id="hero-bg-img" style="display:none;">
   </div>
   <div class="hero-dark"></div>
   <div class="hero-lines"></div>
@@ -79,7 +102,7 @@
     <p>See what's happening at The Juta River. Pick your event, bring your people and make a day of it.</p>
   </div>
   <div class="event-scroller" id="event-list">
-    <!-- Events will be inserted here by event-engine.js -->
+    <!-- Events will be inserted here -->
   </div>
   <div class="swipe-note">← SWIPE EVENTS →</div>
 </section>
