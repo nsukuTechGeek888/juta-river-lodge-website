@@ -1,6 +1,6 @@
 /*
 ===========================================
-JUTA RIVER EVENT ENGINE - OPTIMIZED FOR SPEED
+JUTA RIVER EVENT ENGINE - NO DEFAULT IMAGE
 ===========================================
 */
 
@@ -31,13 +31,13 @@ JUTA RIVER EVENT ENGINE - OPTIMIZED FOR SPEED
 
     let cachedEvents = [];
     let isLoading = false;
+    let videoStarted = false;
 
     // ============================================
     // FETCH EVENTS WITH CACHE
     // ============================================
 
     async function fetchEvents() {
-        // If we already have events, return them immediately
         if (cachedEvents.length > 0) {
             return cachedEvents;
         }
@@ -89,32 +89,41 @@ JUTA RIVER EVENT ENGINE - OPTIMIZED FOR SPEED
     }
 
     // ============================================
-    // PLAY VIDEO FUNCTION (with immediate play)
+    // PLAY VIDEO FUNCTION
     // ============================================
 
     function playVideo() {
-        if (!videoElement || !videoElement.src) return;
+        if (!videoElement || !videoElement.src || videoElement.src === '') {
+            console.log('📹 No video source, showing image');
+            showImage();
+            return;
+        }
         
-        // Force attributes
         videoElement.muted = true;
         videoElement.loop = true;
         videoElement.playsInline = true;
         videoElement.autoplay = true;
         
-        // Show video, hide image
+        // Show video with fade
         videoElement.style.display = 'block';
         videoElement.classList.add('show');
+        videoElement.style.opacity = '1';
+        
+        // Hide image
         if (imageElement) {
-            imageElement.classList.add('hide');
+            imageElement.classList.remove('show');
             imageElement.style.opacity = '0';
+            imageElement.style.display = 'none';
         }
         
-        // Try to play immediately
         const playPromise = videoElement.play();
         if (playPromise !== undefined) {
-            playPromise.catch(function(error) {
+            playPromise.then(function() {
+                console.log('🎬 Video playing');
+                videoStarted = true;
+            }).catch(function(error) {
                 console.log('🔇 Video autoplay blocked, waiting for interaction...');
-                // Try again on any interaction
+                // Try again on interaction
                 const playOnInteraction = function() {
                     videoElement.play().catch(function() {});
                     document.removeEventListener('click', playOnInteraction);
@@ -127,11 +136,34 @@ JUTA RIVER EVENT ENGINE - OPTIMIZED FOR SPEED
     }
 
     // ============================================
-    // RENDER EVENTS - FAST!
+    // SHOW IMAGE (when no video)
+    // ============================================
+
+    function showImage(imageSrc) {
+        if (!imageElement) return;
+        
+        // Hide video
+        if (videoElement) {
+            videoElement.style.display = 'none';
+            videoElement.classList.remove('show');
+            videoElement.pause();
+        }
+        
+        // Show image
+        if (imageSrc) {
+            imageElement.src = imageSrc;
+        }
+        imageElement.style.display = 'block';
+        imageElement.classList.add('show');
+        imageElement.style.opacity = '1';
+        console.log('🖼️ Showing background image');
+    }
+
+    // ============================================
+    // RENDER ALL EVENTS
     // ============================================
 
     async function renderAllEvents() {
-        // Prevent multiple concurrent loads
         if (isLoading) return;
         isLoading = true;
         
@@ -153,7 +185,7 @@ JUTA RIVER EVENT ENGINE - OPTIMIZED FOR SPEED
         }
 
         // ============================================
-        // 1. UPDATE HERO BACKGROUND - IMMEDIATE
+        // 1. UPDATE HERO BACKGROUND
         // ============================================
 
         let heroEvent = events.find(e => e.hero === true);
@@ -168,9 +200,12 @@ JUTA RIVER EVENT ENGINE - OPTIMIZED FOR SPEED
         console.log('⭐ Hero event:', heroEvent?.name || 'None');
 
         if (heroEvent) {
-            const hasVideo = heroEvent.videoId && heroEvent.videoId !== '' && heroEvent.videoId !== 'null';
+            const hasVideo = heroEvent.videoId && 
+                            heroEvent.videoId !== '' && 
+                            heroEvent.videoId !== 'null' &&
+                            heroEvent.videoId !== 'undefined';
             
-            // Update hero text FIRST (fast)
+            // Update hero text
             if (heroName) heroName.textContent = heroEvent.name || 'Event';
             
             if (heroDate) {
@@ -192,22 +227,33 @@ JUTA RIVER EVENT ENGINE - OPTIMIZED FOR SPEED
                 timer.dataset.date = heroEvent.date + 'T' + (heroEvent.time || '20:00') + ':00+02:00';
             }
             
-            // Update background - video or image
+            // ============================================
+            // UPDATE BACKGROUND - VIDEO OR IMAGE
+            // ============================================
+            
             if (hasVideo && videoElement) {
+                console.log('🎬 Video found for hero event');
+                
                 // Check if video source changed
                 const currentSrc = videoElement.src;
                 const newSrc = heroEvent.videoId;
                 
                 if (currentSrc !== newSrc) {
-                    console.log('🎬 Setting video source:', newSrc.substring(0, 50) + '...');
                     videoElement.src = newSrc;
                     videoElement.load();
                     
-                    // Set up canplay event to play as soon as ready
+                    // Play when ready
                     videoElement.oncanplay = function() {
                         playVideo();
                         videoElement.oncanplay = null;
                     };
+                    
+                    // Also try after a short delay (for slow connections)
+                    setTimeout(function() {
+                        if (!videoStarted) {
+                            playVideo();
+                        }
+                    }, 2000);
                     
                     // If video is already loaded enough, play immediately
                     if (videoElement.readyState >= 3) {
@@ -217,23 +263,15 @@ JUTA RIVER EVENT ENGINE - OPTIMIZED FOR SPEED
                     // Same video, just play it
                     playVideo();
                 }
-            } else if (imageElement) {
-                // Show image immediately
-                imageElement.src = heroEvent.poster || 'assets/juta-river-pool-and-lodge.jpeg';
-                imageElement.classList.remove('hide');
-                imageElement.style.opacity = '1';
-                
-                if (videoElement) {
-                    videoElement.style.display = 'none';
-                    videoElement.classList.remove('show');
-                    videoElement.pause();
-                }
-                console.log('🖼️ Showing background image for hero');
+            } else {
+                // No video - show poster image
+                console.log('🖼️ No video found, showing poster image');
+                showImage(heroEvent.poster || 'assets/juta-river-pool-and-lodge.jpeg');
             }
         }
 
         // ============================================
-        // 2. RENDER EVENT CARDS - FAST!
+        // 2. RENDER EVENT CARDS
         // ============================================
 
         if (!eventScroller) {
@@ -242,9 +280,8 @@ JUTA RIVER EVENT ENGINE - OPTIMIZED FOR SPEED
             return;
         }
 
-        // Don't clear if we already have content - update in place
+        // Only render if empty (first time)
         if (eventScroller.children.length === 0) {
-            // Sort events
             const sorted = [...events].sort((a, b) => {
                 const aDate = getEventDate(a);
                 const bDate = getEventDate(b);
@@ -351,7 +388,8 @@ JUTA RIVER EVENT ENGINE - OPTIMIZED FOR SPEED
     window.addEventListener('storage', function(e) {
         if (e.key === 'juta_river_events_v2') {
             console.log('🔄 Storage changed, re-rendering...');
-            cachedEvents = []; // Clear cache to force reload
+            cachedEvents = [];
+            videoStarted = false;
             renderAllEvents();
         }
     });
@@ -360,27 +398,25 @@ JUTA RIVER EVENT ENGINE - OPTIMIZED FOR SPEED
         if (!document.hidden) {
             console.log('👁️ Tab became visible');
             // Retry playing video
-            if (videoElement && videoElement.src && videoElement.style.display !== 'none') {
+            if (videoElement && videoElement.src && videoElement.src !== '') {
                 playVideo();
             }
         }
     });
 
     // ============================================
-    // INITIAL RENDER - FAST!
+    // INITIAL RENDER
     // ============================================
 
-    // Render immediately if DOM is ready
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
         renderAllEvents();
     } else {
         document.addEventListener('DOMContentLoaded', renderAllEvents);
     }
 
-    // Also render after a short delay to ensure everything is ready
     setTimeout(renderAllEvents, 100);
 
     console.log('🚀 Event engine initialized with Supabase!');
-    console.log('📋 Events will render as soon as data loads');
+    console.log('📋 No default image - video or event poster will be shown');
 
 })();
