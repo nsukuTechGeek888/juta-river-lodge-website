@@ -39,8 +39,15 @@
 
 <main id="home">
 <section class="hero">
-  <img class="hero-bg" src="assets/juta-river-pool-and-lodge.jpeg" alt="The Juta River pool and lodge">
-  <div class="hero-dark"></div><div class="hero-lines"></div>
+  <!-- Hero Background - Video or Image -->
+  <div class="hero-bg-container">
+    <!-- Video element (hidden by default) -->
+    <video class="hero-video" id="hero-video" muted loop playsinline autoplay style="display:none;"></video>
+    <!-- Image fallback -->
+    <img class="hero-bg" id="hero-bg-img" src="assets/juta-river-pool-and-lodge.jpeg" alt="The Juta River pool and lodge">
+  </div>
+  <div class="hero-dark"></div>
+  <div class="hero-lines"></div>
   <div class="hero-content">
     <div class="eyebrow"><span></span> THE JUTA RIVER PRESENTS</div>
     <h1>More than<br><em>an event.</em></h1>
@@ -48,10 +55,13 @@
     <div class="hero-actions"><a class="gold-btn" href="#events">Explore events <b>→</b></a><a class="outline-btn" href="#venue">Discover the venue <b>↗</b></a></div>
     <div class="hero-proof"><span><b>✦</b> LIVE EVENTS</span><span><b>♨</b> POOLSIDE VIBES</span><span><b>♡</b> PRIVATE MOMENTS</span></div>
   </div>
-  <aside class="hero-next">
+  <aside class="hero-next" id="hero-event">
     <div class="next-label">NEXT MAIN EVENT</div>
     <div class="timer" data-date="2026-12-26T16:00:00+02:00">
-      <div><b data-days>000</b><small>Days</small></div><div><b data-hours>00</b><small>Hrs</small></div><div><b data-minutes>00</b><small>Min</small></div><div><b data-seconds>00</b><small>Sec</small></div>
+      <div><b data-days>000</b><small>Days</small></div>
+      <div><b data-hours>00</b><small>Hrs</small></div>
+      <div><b data-minutes>00</b><small>Min</small></div>
+      <div><b data-seconds>00</b><small>Sec</small></div>
     </div>
     <div class="next-event">
       <img src="assets/metro-home-coming.jpg" alt="Metro Home Coming event poster">
@@ -68,11 +78,8 @@
     <div><div class="eyebrow"><span></span> WHAT'S ON</div><h2>Don't just<br><em>hear about it.</em></h2></div>
     <p>See what's happening at The Juta River. Pick your event, bring your people and make a day of it.</p>
   </div>
-  <div class="event-scroller">
-    <article class="event-card featured"><div class="poster"><img src="assets/metro-home-coming.jpg" alt="Metro Home Coming"><span class="tag">NEXT</span></div><div class="event-meta"><div class="date"><b>26</b><small>DEC<br>2026</small></div><div><span>METROBEATZ PRESENTS</span><h3>Metro Home Coming</h3><p>Live entertainment · The Juta River</p></div></div><a class="card-link" href="#book">Tickets / enquiry <b>↗</b></a></article>
-    <article class="event-card"><div class="poster"><img src="assets/juta-saturdays.jpg" alt="The Juta Saturdays"></div><div class="event-meta"><div class="date"><b>04</b><small>JUL</small></div><div><span>THE JUTA RIVER PRESENTS</span><h3>Juta Saturdays</h3><p>Music · Food · People · Vibes</p></div></div><a class="card-link" href="#book">Event info <b>↗</b></a></article>
-    <article class="event-card"><div class="poster"><img src="assets/peoples-party.jpg" alt="The People's Party Winter Edition"></div><div class="event-meta"><div class="date"><b>26</b><small>JUN</small></div><div><span>WINTER EDITION</span><h3>People's Party</h3><p>Big energy · Live entertainment</p></div></div><a class="card-link" href="#book">Event info <b>↗</b></a></article>
-    <article class="event-card"><div class="poster"><img src="assets/juta-saturdays-cream.jpg" alt="The Juta Saturdays cream poster"></div><div class="event-meta"><div class="date"><b>11</b><small>JUL</small></div><div><span>THE JUTA RIVER PRESENTS</span><h3>Juta Saturdays</h3><p>Network · Music · Food · Parking</p></div></div><a class="card-link" href="#book">Event info <b>↗</b></a></article>
+  <div class="event-scroller" id="event-list">
+    <!-- Events will be inserted here by event-engine.js -->
   </div>
   <div class="swipe-note">← SWIPE EVENTS →</div>
 </section>
@@ -126,5 +133,6 @@
 <div class="mobile-actions"><a href="#events">Events</a><a href="https://wa.me/27751656082" target="_blank" rel="noopener">WhatsApp</a><a href="#book">Book</a></div>
 <button class="top" aria-label="Back to top">↑</button>
 <script src="script.js"></script>
+<script src="event-engine.js"></script>
 </body>
 </html>

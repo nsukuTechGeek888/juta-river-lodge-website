@@ -3,3 +3,62 @@
 @media(max-width:1050px){.header{gap:20px}.nav{gap:18px}.header-book{padding:12px 15px}.hero-next{width:310px}.hero-content{width:60vw}.event-scroller{grid-template-columns:repeat(2,1fr)}.poster{height:420px}.experience{grid-template-columns:1fr 1fr}.experience-intro{grid-column:1/-1}.experience-copy{padding:0 0 20px}.drinks-inner{grid-template-columns:1fr 300px;gap:35px}}
 @media(max-width:800px){.header{height:72px;padding:0 18px}.nav,.header-book{display:none}.hamburger{display:flex;margin-left:auto}.mobile-menu{position:fixed;z-index:65;inset:0;background:#070909;display:block;opacity:0;visibility:hidden;transition:.35s}.mobile-menu.open{opacity:1;visibility:visible}.mobile-menu-inner{height:100%;padding:100px 25px 35px;display:flex;flex-direction:column}.menu-top{display:flex;justify-content:space-between;color:#efbf55;font-size:8px;letter-spacing:.18em;border-bottom:1px solid #ffffff18;padding-bottom:20px}.mobile-menu a{font-family:"Oswald";font-size:45px;text-transform:uppercase;border-bottom:1px solid #ffffff13;padding:20px 0;display:flex;justify-content:space-between}.mobile-menu a em{font-family:"DM Sans";font-style:normal;color:#efbf55;font-size:10px;align-self:center}.menu-foot{margin-top:auto;display:flex;justify-content:space-between;color:#777;font-size:7px;letter-spacing:.14em}.hero{padding:115px 20px 190px;align-items:flex-start;min-height:920px}.hero-bg{object-position:57% center}.hero-dark{background:linear-gradient(180deg,#050808d9 0%,#05080870 35%,#050808a8 65%,#050808f5 100%)}.hero-content{width:100%;padding-top:45px}.hero h1{font-size:clamp(64px,18vw,95px);margin:20px 0}.hero-content>p{font-size:15px;max-width:340px}.hero-actions{display:grid;grid-template-columns:1fr;max-width:360px}.gold-btn,.outline-btn{width:100%;padding:16px}.hero-proof{gap:10px;justify-content:space-between;margin-top:30px}.hero-proof span{font-size:7px}.hero-next{left:20px;right:20px;bottom:28px;width:auto;padding:18px}.hero-scroll{display:none}.marquee{height:58px;justify-content:flex-start;padding-left:20px;gap:20px}.section{width:calc(100% - 36px);padding:80px 0}.section-top{display:block;margin-bottom:30px}.section-top>p{margin-top:20px}.section h2{font-size:56px}.event-scroller{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:13px;padding-bottom:12px;margin-right:-18px;padding-right:18px;scrollbar-width:none}.event-scroller::-webkit-scrollbar{display:none}.event-card{min-width:82vw;scroll-snap-align:start}.poster{height:390px}.swipe-note{display:block;text-align:right;color:#666;font-size:7px;letter-spacing:.16em;margin-top:7px}.split-venue{display:block}.venue-image{min-height:430px}.venue-image:after{background:linear-gradient(0deg,#0c1112 0%,transparent 55%)}.venue-copy{padding:25px 20px 75px}.venue-copy h2{font-size:58px}.features{grid-template-columns:1fr}.experience{display:flex;flex-direction:column}.experience-intro{order:0}.experience-photo{order:1;min-height:430px}.experience-copy{order:2;padding:0 8px}.drinks{min-height:900px}.drinks-inner{width:calc(100% - 36px);display:flex;flex-direction:column;align-items:stretch;gap:30px}.drinks-copy{padding-top:80px}.drinks h2{font-size:62px}.drink-side{width:100%}.drink-side img{height:300px}.gallery-grid{display:grid;grid-template-columns:1fr;grid-template-rows:300px 200px 260px auto}.g1{grid-row:auto}.g2{grid-row:auto}.gallery-note{grid-column:auto}.book-card{padding:35px 24px;display:block}.book-actions{width:100%;margin-top:28px}footer{grid-template-columns:1fr 1fr;padding:55px 20px 90px}.footer-brand{grid-column:1/-1}.footer-bottom{grid-column:1/-1;display:block;line-height:2}.footer-bottom span{display:block}.mobile-actions{position:fixed;z-index:55;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(3,1fr);height:60px;padding-bottom:env(safe-area-inset-bottom);background:#080b0bf2;border-top:1px solid #ffffff18;backdrop-filter:blur(15px)}.mobile-actions a{display:grid;place-items:center;font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:#ddd;border-right:1px solid #ffffff0d}.mobile-actions a:last-child{color:#080909;background:#efbf55}.top{bottom:75px;right:15px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+
+/* Hero Video Background */
+.hero-bg-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: center 55%;
+  transform: scale(1.03);
+  z-index: 0;
+}
+
+.hero-video.show {
+  display: block !important;
+  z-index: 2;
+}
+
+.hero-bg.hide {
+  opacity: 0;
+}
+
+/* Ensure overlays are above video */
+.hero-dark {
+  z-index: 3;
+  position: absolute;
+  inset: 0;
+}
+
+.hero-lines {
+  z-index: 3;
+  position: absolute;
+  inset: 0;
+}
+
+.hero-content {
+  z-index: 4;
+  position: relative;
+}
+
+.hero-next {
+  z-index: 4;
+}
