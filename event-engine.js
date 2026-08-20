@@ -1,6 +1,6 @@
 /*
 ===========================================
-JUTA RIVER EVENT ENGINE - OPTIMIZED
+JUTA RIVER EVENT ENGINE
 ===========================================
 */
 
@@ -76,7 +76,7 @@ JUTA RIVER EVENT ENGINE - OPTIMIZED
     }
 
     // ============================================
-    // PLAY VIDEO WITH READY CHECK
+    // PLAY VIDEO
     // ============================================
 
     function playVideo() {
@@ -100,30 +100,14 @@ JUTA RIVER EVENT ENGINE - OPTIMIZED
             imageElement.style.display = 'none';
         }
         
-        const playPromise = videoElement.play();
-        if (playPromise !== undefined) {
-            playPromise.then(function() {
-                console.log('🎬 Video is playing');
-                setTimeout(function() {
-                    if (typeof window.markVideoReady === 'function') {
-                        window.markVideoReady();
-                    }
-                }, 400);
-            }).catch(function() {
-                console.log('🔇 Video autoplay blocked');
-                setTimeout(function() {
-                    if (typeof window.markVideoReady === 'function') {
-                        window.markVideoReady();
-                    }
-                }, 300);
-            });
-        } else {
-            setTimeout(function() {
-                if (typeof window.markVideoReady === 'function') {
-                    window.markVideoReady();
-                }
-            }, 800);
-        }
+        videoElement.play().catch(function() {});
+        
+        // Mark ready after a moment
+        setTimeout(function() {
+            if (typeof window.markVideoReady === 'function') {
+                window.markVideoReady();
+            }
+        }, 500);
     }
 
     function showImage(imageSrc) {
@@ -209,7 +193,7 @@ JUTA RIVER EVENT ENGINE - OPTIMIZED
             timer.dataset.date = heroEvent.date + 'T' + (heroEvent.time || '20:00') + ':00+02:00';
         }
 
-        // Update background - VIDEO
+        // Update background
         if (heroEvent) {
             const hasVideo = heroEvent.videoId && 
                             heroEvent.videoId !== '' && 
@@ -384,7 +368,6 @@ JUTA RIVER EVENT ENGINE - OPTIMIZED
 
     document.addEventListener('visibilitychange', function() {
         if (!document.hidden) {
-            console.log('👁️ Tab became visible');
             if (videoElement && videoElement.src && videoElement.src !== '' && videoElement.paused) {
                 playVideo();
             }
@@ -402,7 +385,6 @@ JUTA RIVER EVENT ENGINE - OPTIMIZED
     }
 
     setTimeout(renderAllEvents, 500);
-    setTimeout(renderAllEvents, 1000);
 
     console.log('🚀 Event engine initialized!');
 

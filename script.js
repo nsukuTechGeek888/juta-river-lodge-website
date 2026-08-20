@@ -11,11 +11,10 @@ addEventListener("resize",()=>{if(innerWidth>800)closeMenu()});
 document.querySelectorAll("img").forEach(img=>{img.addEventListener("error",()=>img.style.opacity=".25")});
 
 // ============================================
-// LOADING SCREEN CONTROLLER - ULTIMATE FIX
+// LOADING SCREEN - SIMPLE FIXED DELAY
 // ============================================
 
 let loadingScreenHidden = false;
-let loadingStartTime = Date.now();
 
 function hideLoadingScreen() {
     if (loadingScreenHidden) return;
@@ -27,92 +26,51 @@ function hideLoadingScreen() {
     const footer = document.querySelector('footer');
     const mobileActions = document.querySelector('.mobile-actions');
     
-    // Show main content with fade-in
+    // Show everything at once
     if (mainContent) mainContent.classList.add('loaded');
     if (header) header.classList.add('loaded');
     if (footer) footer.classList.add('loaded');
     if (mobileActions) mobileActions.classList.add('loaded');
     
-    // Fade out loading screen
+    // Hide loading screen
     if (loadingScreen) {
-        loadingScreen.style.transition = 'opacity 0.5s ease';
+        loadingScreen.style.transition = 'opacity 0.6s ease';
         loadingScreen.style.opacity = '0';
         setTimeout(() => {
-            if (loadingScreen) {
-                loadingScreen.style.display = 'none';
-            }
-        }, 500);
+            if (loadingScreen) loadingScreen.style.display = 'none';
+        }, 600);
     }
     
     console.log('✅ Loading complete!');
-    console.log(`⏱️ Total time: ${Math.round((Date.now() - loadingStartTime) / 1000)}s`);
 }
 
-// Check if everything is ready
-function checkReadyState() {
-    if (loadingScreenHidden) return true;
-    
+// Force hide after exactly 2.5 seconds
+setTimeout(function() {
+    hideLoadingScreen();
+}, 2500);
+
+// Also hide if everything is ready early
+function earlyHide() {
     const video = document.getElementById('hero-video');
     const events = document.getElementById('event-list');
     
-    // Check video: actually playing or no video needed
-    let videoReady = false;
-    if (!video || !video.src || video.src === '' || video.src === 'about:blank') {
-        videoReady = true;
-    } else {
-        videoReady = !video.paused && video.currentTime > 0.1;
-    }
-    
-    // Check events: has content
+    const videoReady = !video || !video.src || video.src === '' || video.src === 'about:blank' || (!video.paused && video.currentTime > 0);
     const eventsReady = events && events.children.length > 0;
     
-    // Minimum display time (2.5 seconds)
-    const minTimePassed = (Date.now() - loadingStartTime) > 2500;
-    
-    // All conditions met
-    const allReady = videoReady && eventsReady && minTimePassed;
-    
-    if (allReady) {
-        setTimeout(hideLoadingScreen, 200);
-        return true;
-    }
-    
-    return false;
-}
-
-// Mark video as ready
-function markVideoReady() {
-    checkReadyState();
-}
-
-// Mark events as ready
-function markEventsReady() {
-    checkReadyState();
-}
-
-// Check periodically
-let loadingAttempts = 0;
-const loadingInterval = setInterval(function() {
-    loadingAttempts++;
-    if (checkReadyState()) {
-        clearInterval(loadingInterval);
-    } else if (loadingAttempts > 60) {
+    if (videoReady && eventsReady) {
         hideLoadingScreen();
-        clearInterval(loadingInterval);
-        console.log('⏰ Force loaded after timeout');
     }
-}, 150);
+}
 
-// Safety net - hide after 10 seconds max
-setTimeout(function() {
+// Check every 200ms
+const earlyCheck = setInterval(function() {
     if (!loadingScreenHidden) {
-        hideLoadingScreen();
-        clearInterval(loadingInterval);
-        console.log('⏰ Force loaded after safety timeout');
+        earlyHide();
+    } else {
+        clearInterval(earlyCheck);
     }
-}, 10000);
+}, 200);
 
-// Expose functions globally
-window.checkReadyState = checkReadyState;
-window.markVideoReady = markVideoReady;
-window.markEventsReady = markEventsReady;
+// Expose functions
+window.markVideoReady = function() { earlyHide(); };
+window.markEventsReady = function() { earlyHide(); };
