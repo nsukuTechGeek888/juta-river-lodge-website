@@ -11,14 +11,14 @@ addEventListener("resize",()=>{if(innerWidth>800)closeMenu()});
 document.querySelectorAll("img").forEach(img=>{img.addEventListener("error",()=>img.style.opacity=".25")});
 
 // ============================================
-// LOADING SCREEN - SIMPLE FIXED DELAY
+// LOADING SCREEN - WAITS FOR CONTENT
 // ============================================
 
-let loadingScreenHidden = false;
+let loadingHidden = false;
 
 function hideLoadingScreen() {
-    if (loadingScreenHidden) return;
-    loadingScreenHidden = true;
+    if (loadingHidden) return;
+    loadingHidden = true;
     
     const loadingScreen = document.getElementById('loadingScreen');
     const mainContent = document.getElementById('home');
@@ -26,7 +26,7 @@ function hideLoadingScreen() {
     const footer = document.querySelector('footer');
     const mobileActions = document.querySelector('.mobile-actions');
     
-    // Show everything at once
+    // Show content
     if (mainContent) mainContent.classList.add('loaded');
     if (header) header.classList.add('loaded');
     if (footer) footer.classList.add('loaded');
@@ -41,36 +41,50 @@ function hideLoadingScreen() {
         }, 600);
     }
     
-    console.log('✅ Loading complete!');
+    console.log('✅ Content is ready!');
 }
 
-// Force hide after exactly 2.5 seconds
-setTimeout(function() {
-    hideLoadingScreen();
-}, 2500);
-
-// Also hide if everything is ready early
-function earlyHide() {
+// Check if content is actually rendered
+function checkContentReady() {
+    // Check video is showing
     const video = document.getElementById('hero-video');
-    const events = document.getElementById('event-list');
+    const videoVisible = video && 
+                        video.style.display !== 'none' && 
+                        video.classList.contains('show');
     
-    const videoReady = !video || !video.src || video.src === '' || video.src === 'about:blank' || (!video.paused && video.currentTime > 0);
+    // Check events are rendered
+    const events = document.getElementById('event-list');
     const eventsReady = events && events.children.length > 0;
     
-    if (videoReady && eventsReady) {
+    // Check hero text is updated
+    const heroName = document.querySelector('.next-event strong');
+    const heroTextReady = heroName && heroName.textContent && heroName.textContent !== 'Metro<br>Home Coming';
+    
+    // All conditions
+    const allReady = (videoVisible || !video || !video.src) && eventsReady;
+    
+    if (allReady) {
         hideLoadingScreen();
+        return true;
     }
+    return false;
 }
 
 // Check every 200ms
-const earlyCheck = setInterval(function() {
-    if (!loadingScreenHidden) {
-        earlyHide();
-    } else {
-        clearInterval(earlyCheck);
+const checkInterval = setInterval(function() {
+    if (checkContentReady()) {
+        clearInterval(checkInterval);
     }
 }, 200);
 
-// Expose functions
-window.markVideoReady = function() { earlyHide(); };
-window.markEventsReady = function() { earlyHide(); };
+// Force hide after 6 seconds (safety)
+setTimeout(function() {
+    hideLoadingScreen();
+    clearInterval(checkInterval);
+    console.log('⏰ Force hide after timeout');
+}, 6000);
+
+// Expose function for event-engine to call
+window.contentReady = function() {
+    checkContentReady();
+};

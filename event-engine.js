@@ -102,10 +102,10 @@ JUTA RIVER EVENT ENGINE
         
         videoElement.play().catch(function() {});
         
-        // Mark ready after a moment
+        // Notify that video is ready
         setTimeout(function() {
-            if (typeof window.markVideoReady === 'function') {
-                window.markVideoReady();
+            if (typeof window.contentReady === 'function') {
+                window.contentReady();
             }
         }, 500);
     }
@@ -126,9 +126,10 @@ JUTA RIVER EVENT ENGINE
         imageElement.classList.add('show');
         imageElement.style.opacity = '1';
         
+        // Notify that image is ready
         setTimeout(function() {
-            if (typeof window.markVideoReady === 'function') {
-                window.markVideoReady();
+            if (typeof window.contentReady === 'function') {
+                window.contentReady();
             }
         }, 300);
     }
@@ -151,9 +152,12 @@ JUTA RIVER EVENT ENGINE
                     </p>
                 `;
             }
-            if (typeof window.markEventsReady === 'function') {
-                window.markEventsReady();
-            }
+            // Notify even if no events
+            setTimeout(function() {
+                if (typeof window.contentReady === 'function') {
+                    window.contentReady();
+                }
+            }, 300);
             return;
         }
 
@@ -234,9 +238,6 @@ JUTA RIVER EVENT ENGINE
 
         if (!eventScroller) {
             console.warn('⚠️ #event-list not found!');
-            if (typeof window.markEventsReady === 'function') {
-                window.markEventsReady();
-            }
             return;
         }
 
@@ -259,9 +260,6 @@ JUTA RIVER EVENT ENGINE
                     No events found.
                 </p>
             `;
-            if (typeof window.markEventsReady === 'function') {
-                window.markEventsReady();
-            }
             return;
         }
 
@@ -314,10 +312,12 @@ JUTA RIVER EVENT ENGINE
         eventScroller.innerHTML = html;
         console.log(`✅ Rendered ${sorted.length} event cards`);
 
-        // Mark events ready
-        if (typeof window.markEventsReady === 'function') {
-            window.markEventsReady();
-        }
+        // Notify content is ready
+        setTimeout(function() {
+            if (typeof window.contentReady === 'function') {
+                window.contentReady();
+            }
+        }, 300);
 
         // ============================================
         // COUNTDOWN TIMER
