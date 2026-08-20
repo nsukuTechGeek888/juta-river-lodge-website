@@ -11,43 +11,85 @@ addEventListener("resize",()=>{if(innerWidth>800)closeMenu()});
 document.querySelectorAll("img").forEach(img=>{img.addEventListener("error",()=>img.style.opacity=".25")});
 
 // ============================================
-// LOADING SCREEN CONTROLLER
+// LOADING SCREEN CONTROLLER - IMPROVED
 // ============================================
 
+let isReady = false;
+let loadingStartTime = Date.now();
+let videoPlayed = false;
+let eventsRendered = false;
+
 function hideLoadingScreen() {
+    // Don't hide if already hidden
+    if (isReady) return;
+    isReady = true;
+    
     const loadingScreen = document.getElementById('loadingScreen');
     const mainContent = document.getElementById('home');
     const header = document.querySelector('.header');
     const footer = document.querySelector('footer');
     const mobileActions = document.querySelector('.mobile-actions');
     
+    // Show main content with fade-in
     if (mainContent) mainContent.classList.add('loaded');
     if (header) header.classList.add('loaded');
     if (footer) footer.classList.add('loaded');
     if (mobileActions) mobileActions.classList.add('loaded');
     
+    // Hide loading screen with fade-out
     if (loadingScreen) {
         loadingScreen.classList.add('hidden');
-        // After animation, remove from DOM
         setTimeout(() => {
             if (loadingScreen) loadingScreen.style.display = 'none';
         }, 800);
     }
+    
+    console.log('✅ Loading complete - site ready!');
+    console.log(`⏱️ Loading time: ${Math.round((Date.now() - loadingStartTime) / 1000)}s`);
 }
 
 // Check if everything is ready
 function checkReadyState() {
+    // Don't check if already ready
+    if (isReady) return true;
+    
     const video = document.getElementById('hero-video');
     const events = document.getElementById('event-list');
     
-    const videoReady = !video || video.readyState >= 3 || video.src === '' || video.src === 'about:blank';
+    // Check video: playing or no video needed
+    const videoReady = !video || 
+                      video.src === '' || 
+                      video.src === 'about:blank' ||
+                      (!video.paused && video.currentTime > 0) ||
+                      video.readyState >= 3;
+    
+    // Check events: has content
     const eventsReady = events && events.children.length > 0;
     
-    if (videoReady && eventsReady) {
+    // Minimum display time (1.5 seconds for smooth experience)
+    const minTimePassed = (Date.now() - loadingStartTime) > 1500;
+    
+    // All conditions met
+    const allReady = videoReady && eventsReady && minTimePassed;
+    
+    if (allReady) {
         hideLoadingScreen();
         return true;
     }
+    
     return false;
+}
+
+// Mark video as played (called from event-engine)
+function markVideoPlayed() {
+    videoPlayed = true;
+    checkReadyState();
+}
+
+// Mark events as rendered (called from event-engine)
+function markEventsRendered() {
+    eventsRendered = true;
+    checkReadyState();
 }
 
 // Check periodically
@@ -56,19 +98,24 @@ const loadingInterval = setInterval(function() {
     loadingAttempts++;
     if (checkReadyState()) {
         clearInterval(loadingInterval);
-    } else if (loadingAttempts > 40) {
-        // Force hide after 6 seconds (40 * 150ms = 6s)
+    } else if (loadingAttempts > 50) {
+        // Force hide after 7.5 seconds (50 * 150ms)
         hideLoadingScreen();
         clearInterval(loadingInterval);
         console.log('⏰ Force loaded after timeout');
     }
 }, 150);
 
-// Safety net - hide after 6 seconds
+// Safety net - hide after 8 seconds max
 setTimeout(function() {
-    hideLoadingScreen();
-    clearInterval(loadingInterval);
-}, 6000);
+    if (!isReady) {
+        hideLoadingScreen();
+        clearInterval(loadingInterval);
+        console.log('⏰ Force loaded after safety timeout');
+    }
+}, 8000);
 
-// Expose checkReadyState globally so event-engine can call it
+// Expose functions globally so event-engine can call them
 window.checkReadyState = checkReadyState;
+window.markVideoPlayed = markVideoPlayed;
+window.markEventsRendered = markEventsRendered;

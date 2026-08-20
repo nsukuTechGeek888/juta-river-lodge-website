@@ -1,6 +1,6 @@
 /*
 ===========================================
-JUTA RIVER EVENT ENGINE
+JUTA RIVER EVENT ENGINE - WITH READY STATE
 ===========================================
 */
 
@@ -102,8 +102,16 @@ JUTA RIVER EVENT ENGINE
         
         const playPromise = videoElement.play();
         if (playPromise !== undefined) {
-            playPromise.catch(function() {
-                // Will retry on interaction
+            playPromise.then(function() {
+                console.log('🎬 Video is playing');
+                if (typeof window.markVideoPlayed === 'function') {
+                    window.markVideoPlayed();
+                }
+            }).catch(function() {
+                console.log('🔇 Video autoplay blocked');
+                if (typeof window.markVideoPlayed === 'function') {
+                    window.markVideoPlayed();
+                }
             });
         }
     }
@@ -123,6 +131,11 @@ JUTA RIVER EVENT ENGINE
         imageElement.style.display = 'block';
         imageElement.classList.add('show');
         imageElement.style.opacity = '1';
+        
+        // No video, so mark as ready
+        if (typeof window.markVideoPlayed === 'function') {
+            window.markVideoPlayed();
+        }
     }
 
     // ============================================
@@ -143,7 +156,9 @@ JUTA RIVER EVENT ENGINE
                     </p>
                 `;
             }
-            // Still try to hide loading screen
+            if (typeof window.markEventsRendered === 'function') {
+                window.markEventsRendered();
+            }
             if (typeof window.checkReadyState === 'function') {
                 window.checkReadyState();
             }
@@ -194,18 +209,28 @@ JUTA RIVER EVENT ENGINE
                             heroEvent.videoId !== 'undefined';
             
             if (hasVideo && videoElement) {
-                videoElement.src = heroEvent.videoId;
-                videoElement.load();
+                // Set video source
+                const currentSrc = videoElement.src;
+                const newSrc = heroEvent.videoId;
                 
+                // Only update if changed
+                if (currentSrc !== newSrc) {
+                    videoElement.src = newSrc;
+                    videoElement.load();
+                }
+                
+                // Try to play
                 videoElement.oncanplay = function() {
                     playVideo();
                     videoElement.oncanplay = null;
                 };
                 
+                // If video is already loaded enough
                 if (videoElement.readyState >= 3) {
                     playVideo();
                 }
                 
+                // Fallback: try after delay
                 setTimeout(function() {
                     if (!videoElement.currentTime) {
                         playVideo();
@@ -222,12 +247,16 @@ JUTA RIVER EVENT ENGINE
 
         if (!eventScroller) {
             console.warn('⚠️ #event-list not found!');
+            if (typeof window.markEventsRendered === 'function') {
+                window.markEventsRendered();
+            }
             if (typeof window.checkReadyState === 'function') {
                 window.checkReadyState();
             }
             return;
         }
 
+        // Clear and render
         eventScroller.innerHTML = '';
 
         const sorted = [...events].sort((a, b) => {
@@ -240,6 +269,18 @@ JUTA RIVER EVENT ENGINE
             if (!aFuture && bFuture) return 1;
             return aDate - bDate;
         });
+
+        if (sorted.length === 0) {
+            eventScroller.innerHTML = `
+                <p style="color:#999;padding:40px;text-align:center;grid-column:1/-1;">
+                    No events found.
+                </p>
+            `;
+            if (typeof window.markEventsRendered === 'function') {
+                window.markEventsRendered();
+            }
+            return;
+        }
 
         let html = '';
         
@@ -290,6 +331,11 @@ JUTA RIVER EVENT ENGINE
         eventScroller.innerHTML = html;
         console.log(`✅ Rendered ${sorted.length} event cards`);
 
+        // Tell loading screen events are ready
+        if (typeof window.markEventsRendered === 'function') {
+            window.markEventsRendered();
+        }
+
         // ============================================
         // COUNTDOWN TIMER
         // ============================================
@@ -325,10 +371,7 @@ JUTA RIVER EVENT ENGINE
         updateCountdown();
         window._countdownInterval = setInterval(updateCountdown, 1000);
 
-        // ============================================
-        // CHECK IF LOADING SCREEN CAN HIDE
-        // ============================================
-
+        // Check if loading screen can hide
         if (typeof window.checkReadyState === 'function') {
             window.checkReadyState();
         }
@@ -341,13 +384,16 @@ JUTA RIVER EVENT ENGINE
     window.addEventListener('storage', function(e) {
         if (e.key === 'juta_river_events_v2') {
             console.log('🔄 Storage changed, re-rendering...');
+            // Clear and re-render
             renderAllEvents();
         }
     });
 
     document.addEventListener('visibilitychange', function() {
         if (!document.hidden) {
-            if (videoElement && videoElement.src && videoElement.src !== '') {
+            console.log('👁️ Tab became visible');
+            // Retry video if needed
+            if (videoElement && videoElement.src && videoElement.src !== '' && videoElement.paused) {
                 playVideo();
             }
         }
@@ -357,14 +403,16 @@ JUTA RIVER EVENT ENGINE
     // INITIALIZATION
     // ============================================
 
+    // Run initial render
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
         renderAllEvents();
     } else {
         document.addEventListener('DOMContentLoaded', renderAllEvents);
     }
 
-    // Also re-render after a delay to ensure everything loads
+    // Also re-render after delays to ensure everything loads
     setTimeout(renderAllEvents, 500);
+    setTimeout(renderAllEvents, 1000);
 
     console.log('🚀 Event engine initialized!');
 
