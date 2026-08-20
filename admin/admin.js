@@ -6,7 +6,7 @@ const SUPABASE_URL = window.SUPABASE_CONFIG?.url || "https://xgptapucpvogfiezquv
 const SUPABASE_ANON_KEY = window.SUPABASE_CONFIG?.anonKey || "sb_publishable_isUA857Cwiw5AXUEYxgccA_Ps3TozQF";
 
 // ============================================
-// SUPABASE CLIENT
+// SUPABASE CLIENT - USING DELETE + INSERT (works)
 // ============================================
 
 const supabase = {
@@ -28,70 +28,48 @@ const supabase = {
         }
     },
 
+    // DELETE + INSERT method - always works
     async saveEvent(event) {
         try {
             console.log('💾 Saving event:', event);
             
-            // First check if event exists
-            const checkResponse = await fetch(`${SUPABASE_URL}/rest/v1/events?id=eq.${event.id}`, {
+            // First, try to delete if exists
+            const deleteResponse = await fetch(`${SUPABASE_URL}/rest/v1/events?id=eq.${event.id}`, {
+                method: 'DELETE',
                 headers: {
                     'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                    'Content-Type': 'application/json'
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                 }
             });
             
-            const existing = await checkResponse.json();
-            console.log('📋 Existing event check:', existing);
-
-            // If event exists, update it
-            if (existing && existing.length > 0) {
-                console.log('🔄 Updating existing event:', event.id);
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/events?id=eq.${event.id}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(event)
-                });
-                
-                // Check if response is ok
-                if (!response.ok) {
-                    const text = await response.text();
-                    console.error('❌ Update failed:', response.status, text);
-                    throw new Error(`Update failed: ${response.status} - ${text}`);
-                }
-                
-                const result = await response.json();
-                console.log('✅ Update successful:', result);
-                return result;
-            } else {
-                // Insert new event
-                console.log('➕ Inserting new event:', event.id);
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/events`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(event)
-                });
-                
-                if (!response.ok) {
-                    const text = await response.text();
-                    console.error('❌ Insert failed:', response.status, text);
-                    throw new Error(`Insert failed: ${response.status} - ${text}`);
-                }
-                
-                const result = await response.json();
-                console.log('✅ Insert successful:', result);
-                return result;
+            console.log('🗑️ Delete response:', deleteResponse.status);
+            
+            // Always insert fresh
+            console.log('➕ Inserting event:', event.id);
+            const insertResponse = await fetch(`${SUPABASE_URL}/rest/v1/events`, {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                },
+                body: JSON.stringify(event)
+            });
+            
+            const text = await insertResponse.text();
+            console.log('📝 Insert response:', insertResponse.status, text);
+            
+            if (!insertResponse.ok) {
+                throw new Error(`Insert failed: ${insertResponse.status} - ${text}`);
             }
+            
+            const result = text ? JSON.parse(text) : {};
+            console.log('✅ Save successful:', result);
+            return result;
+            
         } catch(e) {
-            console.error('Error saving event:', e);
+            console.error('❌ Error saving event:', e);
             throw e;
         }
     },
@@ -107,14 +85,8 @@ const supabase = {
                 }
             });
             
-            if (!response.ok) {
-                const text = await response.text();
-                console.error('❌ Delete failed:', response.status, text);
-                throw new Error(`Delete failed: ${response.status} - ${text}`);
-            }
-            
-            console.log('✅ Delete successful');
-            return true;
+            console.log('🗑️ Delete response:', response.status);
+            return response.ok;
         } catch(e) {
             console.error('Error deleting event:', e);
             return false;
@@ -129,7 +101,16 @@ const supabase = {
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 
-// Default events
+let events = [];
+let tempPosterData = "";
+let tempVideoFile = null;
+let tempVideoUrl = "";
+let editingEventId = null;
+
+// ============================================
+// DEFAULT EVENTS
+// ============================================
+
 const defaultEvents = [
     {
         id: "metro-home-coming",
@@ -181,12 +162,6 @@ const defaultEvents = [
     }
 ];
 
-let events = [];
-let tempPosterData = "";
-let tempVideoFile = null;
-let tempVideoUrl = "";
-let editingEventId = null;
-
 // ============================================
 // LOAD EVENTS
 // ============================================
@@ -198,10 +173,14 @@ async function loadEvents() {
             console.log('🌱 Seeding default events...');
             showToast('Setting up default events...', 'info');
             for (const event of defaultEvents) {
-                await supabase.saveEvent(event);
+                try {
+                    await supabase.saveEvent(event);
+                } catch(e) {
+                    console.warn('⚠️ Could not seed event:', event.id, e.message);
+                }
             }
             events = await supabase.getEvents();
-            showToast(`✅ Loaded ${events.length} default events`, 'success');
+            showToast(`✅ Loaded ${events.length} events`, 'success');
         } else {
             showToast(`✅ Loaded ${events.length} events`, 'success');
         }
@@ -209,7 +188,7 @@ async function loadEvents() {
         updateStats();
     } catch(e) {
         console.error('Error loading events:', e);
-        showToast('❌ Failed to connect to Supabase', 'error');
+        showToast('❌ Failed to connect to Supabase: ' + e.message, 'error');
     }
 }
 
@@ -256,9 +235,7 @@ function openEventEditor(event = null) {
         document.getElementById("location").value = event.location || "The Juta River · Giyani";
         document.getElementById("desc").value = event.description || "";
         document.getElementById("link").value = event.link || "";
-        
-        const heroCheckbox = document.getElementById("hero");
-        if (heroCheckbox) heroCheckbox.checked = event.hero === true;
+        document.getElementById("hero").checked = event.hero === true;
         
         tempPosterData = event.poster || "";
         tempVideoUrl = event.videoId || "";
@@ -273,9 +250,7 @@ function openEventEditor(event = null) {
         document.getElementById("location").value = "The Juta River · Giyani";
         document.getElementById("desc").value = "";
         document.getElementById("link").value = "";
-        
-        const heroCheckbox = document.getElementById("hero");
-        if (heroCheckbox) heroCheckbox.checked = false;
+        document.getElementById("hero").checked = false;
         
         tempPosterData = "";
         tempVideoUrl = "";
@@ -432,47 +407,51 @@ document.getElementById("video")?.addEventListener("change", function(e) {
 
 document.getElementById("form")?.addEventListener("submit", async function(e) {
     e.preventDefault();
-    
-    const id = document.getElementById("id").value || crypto.randomUUID();
-    const heroCheckbox = document.getElementById("hero");
-    const isHero = heroCheckbox ? heroCheckbox.checked : false;
-    
-    // If this event is hero, un-hero all others
-    if (isHero) {
-        events.forEach(event => event.hero = false);
-    }
-    
-    // Get poster to save
-    let posterToSave = tempPosterData;
-    if (!posterToSave) {
-        const existing = events.find(e => e.id === id);
-        posterToSave = existing?.poster || "../assets/metro-home-coming.jpg";
-    }
-    
-    let videoToSave = tempVideoUrl || "";
-    
-    const newEvent = {
-        id: id,
-        name: document.getElementById("name").value.trim(),
-        date: document.getElementById("date").value,
-        time: document.getElementById("time").value,
-        location: document.getElementById("location").value.trim(),
-        description: document.getElementById("desc").value.trim(),
-        link: document.getElementById("link").value.trim(),
-        poster: posterToSave,
-        videoId: videoToSave,
-        hero: isHero
-    };
+    const submitButton = this.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.textContent = 'Saving...';
     
     try {
-        showToast('💾 Saving event...', 'info');
-        await supabase.saveEvent(newEvent);
+        const id = document.getElementById("id").value || crypto.randomUUID();
+        const isHero = document.getElementById("hero").checked;
+        
+        // Un-hero all others if this is hero
+        if (isHero) {
+            events.forEach(event => event.hero = false);
+        }
+        
+        // Prepare event data - make sure all fields match Supabase columns
+        const eventData = {
+            id: id,
+            name: document.getElementById("name").value.trim() || "Untitled Event",
+            date: document.getElementById("date").value || "2026-12-31",
+            time: document.getElementById("time").value || "20:00",
+            location: document.getElementById("location").value.trim() || "The Juta River · Giyani",
+            description: document.getElementById("desc").value.trim() || "",
+            link: document.getElementById("link").value.trim() || "",
+            poster: tempPosterData || "../assets/metro-home-coming.jpg",
+            videoId: tempVideoUrl || "",
+            hero: isHero
+        };
+        
+        console.log('📝 Saving event:', eventData);
+        
+        // Save to Supabase (DELETE + INSERT)
+        await supabase.saveEvent(eventData);
+        
+        // Reload events
         await loadEvents();
+        
+        // Close modal and reset
         closeModal();
         showToast('✅ Event saved successfully!', 'success');
+        
     } catch(e) {
-        showToast('❌ Failed to save event: ' + e.message, 'error');
-        console.error(e);
+        console.error('❌ Save failed:', e);
+        showToast('❌ Failed to save: ' + e.message, 'error');
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Save event';
     }
 });
 
