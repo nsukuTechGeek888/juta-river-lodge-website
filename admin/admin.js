@@ -30,7 +30,6 @@ const supabase = {
 
     async saveEvent(event) {
         try {
-            // Check if event exists
             const checkResponse = await fetch(`${SUPABASE_URL}/rest/v1/events?id=eq.${event.id}`, {
                 headers: {
                     'apikey': SUPABASE_ANON_KEY,
@@ -41,7 +40,6 @@ const supabase = {
             const existing = await checkResponse.json();
 
             if (existing && existing.length > 0) {
-                // Update existing event
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/events?id=eq.${event.id}`, {
                     method: 'PATCH',
                     headers: {
@@ -53,7 +51,6 @@ const supabase = {
                 });
                 return await response.json();
             } else {
-                // Insert new event
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/events`, {
                     method: 'POST',
                     headers: {
@@ -95,7 +92,7 @@ const supabase = {
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 
-// Default events (as fallback)
+// Default events
 const defaultEvents = [
     {
         id: "metro-home-coming",
@@ -152,26 +149,36 @@ let tempPosterData = "";
 let tempVideoFile = null;
 let tempVideoUrl = "";
 
-// Load events from Supabase
+// ============================================
+// LOAD EVENTS
+// ============================================
+
 async function loadEvents() {
     try {
         events = await supabase.getEvents();
         if (!events || events.length === 0) {
-            console.log('Seeding default events...');
+            console.log('🌱 Seeding default events...');
+            showToast('Setting up default events...', 'info');
             for (const event of defaultEvents) {
                 await supabase.saveEvent(event);
             }
             events = await supabase.getEvents();
+            showToast(`✅ Loaded ${events.length} default events`, 'success');
+        } else {
+            showToast(`✅ Loaded ${events.length} events`, 'success');
         }
         renderEvents();
         updateStats();
     } catch(e) {
         console.error('Error loading events:', e);
-        alert('Failed to connect to Supabase. Please check your configuration.');
+        showToast('❌ Failed to connect to Supabase', 'error');
     }
 }
 
-// Update stats
+// ============================================
+// STATS
+// ============================================
+
 function updateStats() {
     const now = new Date();
     const totalEl = document.getElementById("total");
@@ -190,14 +197,18 @@ function updateStats() {
     }
 }
 
-// Open the event editor modal
+// ============================================
+// EDITOR MODAL
+// ============================================
+
 function openEventEditor(event = null) {
     const modal = document.getElementById("modal");
     if (!modal) return;
     
     modal.classList.add("open");
+    document.body.style.overflow = 'hidden';
     
-    document.getElementById("title").textContent = event ? "Edit event" : "Add event";
+    document.getElementById("title").textContent = event ? "✏️ Edit event" : "➕ Add event";
     document.getElementById("id").value = event?.id || "";
     document.getElementById("name").value = event?.name || "";
     document.getElementById("date").value = event?.date || "";
@@ -216,13 +227,21 @@ function openEventEditor(event = null) {
     updatePreview();
 }
 
+function closeModal() {
+    document.getElementById("modal")?.classList.remove("open");
+    document.body.style.overflow = '';
+    tempPosterData = "";
+    tempVideoFile = null;
+    tempVideoUrl = "";
+}
+
 function updatePreview() {
     const preview = document.getElementById("preview");
     if (!preview) return;
     let html = "";
     
     if (tempPosterData) {
-        html += `<img src="${tempPosterData}" alt="Poster preview" style="max-height:120px;border-radius:8px;"><br>`;
+        html += `<img src="${tempPosterData}" alt="Poster preview">`;
     }
     
     if (tempVideoUrl) {
@@ -232,20 +251,69 @@ function updatePreview() {
     }
     
     if (!tempPosterData && !tempVideoUrl && !tempVideoFile) {
-        html = "No media selected";
+        html = "📷 No media selected";
     }
     preview.innerHTML = html;
 }
 
-// Close modal
-document.getElementById("close")?.addEventListener("click", function() {
-    document.getElementById("modal")?.classList.remove("open");
-});
+// ============================================
+// TOAST NOTIFICATIONS
+// ============================================
+
+function showToast(message, type = 'info') {
+    // Remove existing toast
+    const oldToast = document.querySelector('.toast');
+    if (oldToast) oldToast.remove();
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    
+    const colors = {
+        success: '#4caf50',
+        error: '#ff6b6b',
+        info: '#f1c45e'
+    };
+    
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        padding: 14px 24px;
+        background: #0d1214;
+        border: 1px solid ${colors[type] || colors.info}55;
+        border-radius: 12px;
+        color: #eee;
+        font-size: 13px;
+        z-index: 999;
+        box-shadow: 0 12px 40px #000000aa;
+        animation: slideUp .3s ease;
+        max-width: 400px;
+        backdrop-filter: blur(12px);
+    `;
+    
+    toast.innerHTML = `
+        <span style="color: ${colors[type] || colors.info};">●</span>
+        ${message}
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(20px)';
+        toast.style.transition = '.3s';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// ============================================
+// EVENT LISTENERS
+// ============================================
+
+document.getElementById("close")?.addEventListener("click", closeModal);
 
 document.getElementById("modal")?.addEventListener("click", function(e) {
-    if (e.target === this) {
-        this.classList.remove("open");
-    }
+    if (e.target === this) closeModal();
 });
 
 document.getElementById("add")?.addEventListener("click", function() {
@@ -255,12 +323,15 @@ document.getElementById("add")?.addEventListener("click", function() {
     openEventEditor();
 });
 
-// Poster upload
+// ============================================
+// POSTER UPLOAD
+// ============================================
+
 document.getElementById("poster")?.addEventListener("change", function(e) {
     const file = e.target.files[0];
     if (!file) return;
     if (file.size > 200 * 1024) {
-        alert('Poster image is too large! Please use an image under 200KB.');
+        showToast('❌ Poster too large! Max 200KB', 'error');
         this.value = '';
         return;
     }
@@ -268,32 +339,39 @@ document.getElementById("poster")?.addEventListener("change", function(e) {
     reader.onload = function() {
         tempPosterData = reader.result;
         updatePreview();
+        showToast('✅ Poster uploaded successfully', 'success');
     };
     reader.readAsDataURL(file);
 });
 
-// Video upload (preview only - stored as URL)
+// ============================================
+// VIDEO UPLOAD
+// ============================================
+
 document.getElementById("video")?.addEventListener("change", function(e) {
     const file = e.target.files[0];
     if (!file) return;
     
     if (file.size > 50 * 1024 * 1024) {
-        alert('Video is too large! Please use a video under 50MB.');
+        showToast('❌ Video too large! Max 50MB', 'error');
         this.value = '';
         return;
     }
     
-    // For demo, convert to data URL (small videos only)
     const reader = new FileReader();
     reader.onload = function() {
         tempVideoUrl = reader.result;
         tempVideoFile = file;
         updatePreview();
+        showToast(`✅ Video selected (${Math.round(file.size / 1024)} KB)`, 'success');
     };
     reader.readAsDataURL(file);
 });
 
-// Form submit
+// ============================================
+// FORM SUBMIT
+// ============================================
+
 document.getElementById("form")?.addEventListener("submit", async function(e) {
     e.preventDefault();
 
@@ -327,17 +405,20 @@ document.getElementById("form")?.addEventListener("submit", async function(e) {
     };
 
     try {
+        showToast('💾 Saving event...', 'info');
         await supabase.saveEvent(newEvent);
         await loadEvents();
-        document.getElementById("modal")?.classList.remove("open");
-        tempPosterData = "";
-        tempVideoFile = null;
-        tempVideoUrl = "";
+        closeModal();
+        showToast('✅ Event saved successfully!', 'success');
     } catch(e) {
-        alert('Failed to save event. Please try again.');
+        showToast('❌ Failed to save event', 'error');
         console.error(e);
     }
 });
+
+// ============================================
+// DELETE EVENT
+// ============================================
 
 window.deleteEvent = async function(id) {
     const event = events.find(event => event.id === id);
@@ -346,18 +427,28 @@ window.deleteEvent = async function(id) {
     if (!confirmed) return;
     
     try {
+        showToast('🗑️ Deleting event...', 'info');
         await supabase.deleteEvent(id);
         await loadEvents();
+        showToast('✅ Event deleted successfully', 'success');
     } catch(e) {
-        alert('Failed to delete event. Please try again.');
+        showToast('❌ Failed to delete event', 'error');
         console.error(e);
     }
 };
+
+// ============================================
+// EDIT EVENT
+// ============================================
 
 window.editEvent = function(id) {
     const event = events.find(event => event.id === id);
     if (event) openEventEditor(event);
 };
+
+// ============================================
+// ESCAPE HTML
+// ============================================
 
 function escapeHTML(value = "") {
     return value.replace(/[&<>"']/g, char => ({
@@ -368,6 +459,10 @@ function escapeHTML(value = "") {
         "'": "&#039;"
     })[char]);
 }
+
+// ============================================
+// RENDER EVENTS
+// ============================================
 
 function renderEvents() {
     const now = new Date();
@@ -390,7 +485,13 @@ function renderEvents() {
     });
 
     if (!filteredEvents.length) {
-        listContainer.innerHTML = `<div style="text-align:center;padding:50px;color:#777;">No events found.</div>`;
+        listContainer.innerHTML = `
+            <div style="text-align:center;padding:60px 20px;color:#555;">
+                <div style="font-size:48px;margin-bottom:12px;">📅</div>
+                <p style="font-size:14px;">No events found</p>
+                <p style="font-size:11px;color:#444;">Click "+ Add event" to create your first event</p>
+            </div>
+        `;
         return;
     }
 
@@ -398,29 +499,62 @@ function renderEvents() {
         const eventDate = new Date(`${event.date}T${event.time}`);
         const posterSrc = event.poster || "../assets/metro-home-coming.jpg";
         const hasVideo = event.videoId && event.videoId !== "";
+        const isUpcoming = eventDate >= now;
+        
         return `
             <div class="row">
-                <img src="${posterSrc}" alt="${escapeHTML(event.name)}">
+                <img src="${posterSrc}" alt="${escapeHTML(event.name)}" onerror="this.src='../assets/metro-home-coming.jpg'">
                 <div>
                     <small>
-                        ${eventDate.toLocaleString("en-ZA")}
-                        ${event.hero ? " · ⭐ HERO EVENT" : ""}
-                        ${hasVideo ? " · 🎬 VIDEO BG" : ""}
+                        ${eventDate.toLocaleDateString("en-ZA", { day: '2-digit', month: 'short', year: 'numeric' })} 
+                        at ${eventDate.toLocaleTimeString("en-ZA", { hour: '2-digit', minute: '2-digit' })}
+                        ${isUpcoming ? ' 🔵' : ''}
+                        ${event.hero ? ' ⭐' : ''}
+                        ${hasVideo ? ' 🎬' : ''}
                     </small>
-                    <h3>${escapeHTML(event.name)}</h3>
+                    <h3>
+                        ${escapeHTML(event.name)}
+                        ${event.hero ? '<span class="badge-featured">★ FEATURED</span>' : ''}
+                    </h3>
                     <p>${escapeHTML(event.location)}${event.description ? " · " + escapeHTML(event.description) : ""}</p>
                 </div>
-                <div>
-                    <button onclick="editEvent('${event.id}')">Edit</button>
-                    <button class="del" onclick="deleteEvent('${event.id}')">Delete</button>
+                <div class="actions">
+                    <button class="edit-btn" onclick="editEvent('${event.id}')">✏️ Edit</button>
+                    <button class="del" onclick="deleteEvent('${event.id}')">🗑️ Delete</button>
                 </div>
             </div>
         `;
     }).join("");
 }
 
+// ============================================
+// SEARCH & FILTER
+// ============================================
+
 document.getElementById("search")?.addEventListener("input", renderEvents);
 document.getElementById("filter")?.addEventListener("change", renderEvents);
 
-// Initial load
+// ============================================
+// KEYBOARD SHORTCUTS
+// ============================================
+
+document.addEventListener('keydown', function(e) {
+    // ESC to close modal
+    if (e.key === 'Escape') closeModal();
+    
+    // Ctrl+N to add new event
+    if (e.ctrlKey && e.key === 'n') {
+        e.preventDefault();
+        document.getElementById("add")?.click();
+    }
+});
+
+// ============================================
+// INITIAL LOAD
+// ============================================
+
+showToast('🚀 Loading events...', 'info');
 loadEvents();
+
+console.log('🚀 Juta River Admin Dashboard initialized!');
+console.log('📋 Keyboard shortcuts: ESC to close modal, Ctrl+N to add event');
