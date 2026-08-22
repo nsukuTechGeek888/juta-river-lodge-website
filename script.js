@@ -11,28 +11,21 @@ addEventListener("resize",()=>{if(innerWidth>800)closeMenu()});
 document.querySelectorAll("img").forEach(img=>{img.addEventListener("error",()=>img.style.opacity=".25")});
 
 // ============================================
-// LOADING SCREEN - WAITS FOR CONTENT
+// LOADING SCREEN - SIMPLE & RELIABLE
 // ============================================
 
-let loadingHidden = false;
-
-function hideLoadingScreen() {
-    if (loadingHidden) return;
-    loadingHidden = true;
-    
+setTimeout(function() {
     const loadingScreen = document.getElementById('loadingScreen');
     const mainContent = document.getElementById('home');
     const header = document.querySelector('.header');
     const footer = document.querySelector('footer');
     const mobileActions = document.querySelector('.mobile-actions');
     
-    // Show content
     if (mainContent) mainContent.classList.add('loaded');
     if (header) header.classList.add('loaded');
     if (footer) footer.classList.add('loaded');
     if (mobileActions) mobileActions.classList.add('loaded');
     
-    // Hide loading screen
     if (loadingScreen) {
         loadingScreen.style.transition = 'opacity 0.6s ease';
         loadingScreen.style.opacity = '0';
@@ -40,51 +33,39 @@ function hideLoadingScreen() {
             if (loadingScreen) loadingScreen.style.display = 'none';
         }, 600);
     }
-    
-    console.log('✅ Content is ready!');
-}
+}, 2500);
 
-// Check if content is actually rendered
-function checkContentReady() {
-    // Check video is showing
+// ============================================
+// FORCE VIDEO PLAY ON MOBILE
+// ============================================
+
+function forcePlayVideo() {
     const video = document.getElementById('hero-video');
-    const videoVisible = video && 
-                        video.style.display !== 'none' && 
-                        video.classList.contains('show');
+    if (!video) return;
     
-    // Check events are rendered
-    const events = document.getElementById('event-list');
-    const eventsReady = events && events.children.length > 0;
+    video.muted = true;
+    video.playsInline = true;
+    video.loop = true;
     
-    // Check hero text is updated
-    const heroName = document.querySelector('.next-event strong');
-    const heroTextReady = heroName && heroName.textContent && heroName.textContent !== 'Metro<br>Home Coming';
+    video.style.display = 'block';
+    video.classList.add('show');
     
-    // All conditions
-    const allReady = (videoVisible || !video || !video.src) && eventsReady;
-    
-    if (allReady) {
-        hideLoadingScreen();
-        return true;
+    if (video.paused) {
+        video.play().catch(function() {
+            console.log('🔇 Autoplay blocked, waiting for interaction...');
+        });
     }
-    return false;
 }
 
-// Check every 200ms
-const checkInterval = setInterval(function() {
-    if (checkContentReady()) {
-        clearInterval(checkInterval);
-    }
-}, 200);
+setTimeout(forcePlayVideo, 500);
+setTimeout(forcePlayVideo, 1500);
 
-// Force hide after 6 seconds (safety)
-setTimeout(function() {
-    hideLoadingScreen();
-    clearInterval(checkInterval);
-    console.log('⏰ Force hide after timeout');
-}, 6000);
+document.addEventListener('click', function forcePlayOnce() {
+    forcePlayVideo();
+    document.removeEventListener('click', forcePlayOnce);
+}, { once: true });
 
-// Expose function for event-engine to call
-window.contentReady = function() {
-    checkContentReady();
-};
+document.addEventListener('touchstart', function forcePlayTouch() {
+    forcePlayVideo();
+    document.removeEventListener('touchstart', forcePlayTouch);
+}, { once: true });

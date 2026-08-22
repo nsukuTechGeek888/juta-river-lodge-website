@@ -19,14 +19,7 @@
     <div class="loader-logo">♨</div>
     <div class="loader-text">THE JUTA RIVER</div>
     <div class="loader-sub">Lodge &amp; Events</div>
-    
-    <div class="loader-ring">
-      <svg viewBox="0 0 50 50">
-        <circle class="bg" cx="25" cy="25" r="25"/>
-        <circle class="progress-ring" cx="25" cy="25" r="25"/>
-      </svg>
-    </div>
-    
+    <div class="loader-spinner"></div>
     <div class="loader-dots">
       <span></span>
       <span></span>
@@ -39,15 +32,23 @@
 
 <div class="grain"></div><div class="progress"><span></span></div>
 
+<!-- ===== HEADER ===== -->
 <header class="header">
   <a class="brand" href="#home" aria-label="The Juta River home">
-    <span class="brand-icon">♨</span><span><b>THE<br>JUTA</b><small>RIVER LODGE</small></span>
+    <span class="brand-icon">♨</span>
+    <span><b>THE<br>JUTA</b><small>RIVER LODGE</small></span>
   </a>
   <nav class="nav">
-    <a href="#events">Events</a><a href="#venue">Venue</a><a href="#experience">Experience</a><a href="#drinks">Drinks</a><a href="#contact">Contact</a>
+    <a href="#events">Events</a>
+    <a href="#venue">Venue</a>
+    <a href="#experience">Experience</a>
+    <a href="#drinks">Drinks</a>
+    <a href="#contact">Contact</a>
   </nav>
   <a class="header-book" href="#book">Book the venue <span>↗</span></a>
-  <button class="hamburger" aria-label="Open menu" aria-expanded="false"><i></i><i></i><i></i></button>
+  <button class="hamburger" aria-label="Open menu" aria-expanded="false">
+    <i></i><i></i><i></i>
+  </button>
 </header>
 
 <div class="mobile-menu" aria-hidden="true">
@@ -63,11 +64,16 @@
 </div>
 
 <main id="home">
+
+<!-- ===== HERO SECTION - WITH VIDEO + FALLBACK ===== -->
 <section class="hero">
-  <!-- Hero Background - Video or Image -->
   <div class="hero-bg-container">
-    <video class="hero-video" id="hero-video" muted loop playsinline autoplay preload="auto" style="display:none;"></video>
-    <img class="hero-bg" id="hero-bg-img" style="display:none;">
+    <!-- Video with fallback -->
+    <video class="hero-video" id="hero-video" muted loop playsinline autoplay preload="auto" poster="assets/juta-river-pool-and-lodge.jpeg">
+      <source src="assets/hero-video.mp4" type="video/mp4">
+      <!-- Fallback image if video fails -->
+      <img src="assets/juta-river-pool-and-lodge.jpeg" alt="The Juta River">
+    </video>
   </div>
   <div class="hero-dark"></div>
   <div class="hero-lines"></div>
@@ -75,8 +81,15 @@
     <div class="eyebrow"><span></span> THE JUTA RIVER PRESENTS</div>
     <h1>More than<br><em>an event.</em></h1>
     <p>Giyani's destination for events, parties and unforgettable moments.</p>
-    <div class="hero-actions"><a class="gold-btn" href="#events">Explore events <b>→</b></a><a class="outline-btn" href="#venue">Discover the venue <b>↗</b></a></div>
-    <div class="hero-proof"><span><b>✦</b> LIVE EVENTS</span><span><b>♨</b> POOLSIDE VIBES</span><span><b>♡</b> PRIVATE MOMENTS</span></div>
+    <div class="hero-actions">
+      <a class="gold-btn" href="#events">Explore events <b>→</b></a>
+      <a class="outline-btn" href="#venue">Discover the venue <b>↗</b></a>
+    </div>
+    <div class="hero-proof">
+      <span><b>✦</b> LIVE EVENTS</span>
+      <span><b>♨</b> POOLSIDE VIBES</span>
+      <span><b>♡</b> PRIVATE MOMENTS</span>
+    </div>
   </div>
   <aside class="hero-next" id="hero-event">
     <div class="next-label">NEXT MAIN EVENT</div>
@@ -88,73 +101,188 @@
     </div>
     <div class="next-event">
       <img src="assets/metro-home-coming.jpg" alt="Metro Home Coming event poster">
-      <div><span>26 DEC 2026 · GIYANI</span><strong>Metro<br>Home Coming</strong><a href="#events">View event →</a></div>
+      <div>
+        <span>26 DEC 2026 · GIYANI</span>
+        <strong>Metro<br>Home Coming</strong>
+        <a href="#events">View event →</a>
+      </div>
     </div>
   </aside>
   <div class="hero-scroll">SCROLL <span>↓</span></div>
 </section>
 
-<section class="marquee"><div>EVENTS</div><i>✦</i><div>MUSIC</div><i>✦</i><div>PARTIES</div><i>✦</i><div>CELEBRATIONS</div><i>✦</i><div>GOOD VIBES</div><i>✦</i><div>EVENTS</div></section>
+<!-- ===== MARQUEE ===== -->
+<section class="marquee">
+  <div>EVENTS</div><i>✦</i>
+  <div>MUSIC</div><i>✦</i>
+  <div>PARTIES</div><i>✦</i>
+  <div>CELEBRATIONS</div><i>✦</i>
+  <div>GOOD VIBES</div><i>✦</i>
+  <div>EVENTS</div>
+</section>
 
+<!-- ===== EVENTS SECTION ===== -->
 <section class="section events" id="events">
   <div class="section-top">
-    <div><div class="eyebrow"><span></span> WHAT'S ON</div><h2>Don't just<br><em>hear about it.</em></h2></div>
+    <div>
+      <div class="eyebrow"><span></span> WHAT'S ON</div>
+      <h2>Don't just<br><em>hear about it.</em></h2>
+    </div>
     <p>See what's happening at The Juta River. Pick your event, bring your people and make a day of it.</p>
   </div>
   <div class="event-scroller" id="event-list">
-    <!-- Events will be inserted here -->
+    <!-- Events inserted by event-engine.js -->
   </div>
   <div class="swipe-note">← SWIPE EVENTS →</div>
 </section>
 
+<!-- ===== VENUE SECTION ===== -->
 <section class="split-venue" id="venue">
-  <div class="venue-image"><img src="assets/juta-river-outdoor-area.jpeg" alt="Outdoor event area at The Juta River"><span class="image-label">01 / THE VENUE</span></div>
-  <div class="venue-copy"><div class="eyebrow"><span></span> A PLACE LIKE NO OTHER</div><h2>Built for<br><em>your people.</em></h2><p>The Juta River gives you room to turn a normal day into something worth remembering. Open-air spaces, greenery, poolside moments and a setting made for gatherings.</p><div class="features"><span>✦ Outdoor events</span><span>♨ Poolside setting</span><span>♫ Music & DJs</span><span>♛ Private functions</span></div><a class="gold-btn" href="#book">Book the venue <b>→</b></a></div>
+  <div class="venue-image">
+    <img src="assets/juta-river-outdoor-area.jpeg" alt="Outdoor event area at The Juta River">
+    <span class="image-label">01 / THE VENUE</span>
+  </div>
+  <div class="venue-copy">
+    <div class="eyebrow"><span></span> A PLACE LIKE NO OTHER</div>
+    <h2>Built for<br><em>your people.</em></h2>
+    <p>The Juta River gives you room to turn a normal day into something worth remembering. Open-air spaces, greenery, poolside moments and a setting made for gatherings.</p>
+    <div class="features">
+      <span>✦ Outdoor events</span>
+      <span>♨ Poolside setting</span>
+      <span>♫ Music & DJs</span>
+      <span>♛ Private functions</span>
+    </div>
+    <a class="gold-btn" href="#book">Book the venue <b>→</b></a>
+  </div>
 </section>
 
-<section class="experience section" id="experience">
-  <div class="experience-intro"><div class="eyebrow"><span></span> THE JUTA EXPERIENCE</div><h2>Come for the event.<br><em>Stay for the vibe.</em></h2><p>Because the best memories don't start when the headline act walks on. They start when you arrive.</p></div>
-  <div class="experience-photo"><img src="assets/juta-river-pool-and-lodge.jpeg" alt="Pool and lodge at The Juta River"><span>THE POOLSIDE</span></div>
-  <div class="experience-copy"><div class="number">02</div><h3>Make a whole day of it.</h3><p>Chill by the pool, meet your people, grab something cold and settle into the atmosphere before the music gets loud.</p><a href="#drinks">Explore the vibe →</a></div>
+<!-- ===== EXPERIENCE SECTION - WITH VIDEO ===== -->
+<section class="experience-section" id="experience">
+  <div class="experience-intro">
+    <div class="eyebrow"><span></span> THE JUTA EXPERIENCE</div>
+    <h2>Come for the event.<br><em>Stay for the vibe.</em></h2>
+    <p>Because the best memories don't start when the headline act walks on. They start when you arrive.</p>
+  </div>
+  
+  <!-- Experience Video Background -->
+  <div class="experience-video-wrapper">
+    <video class="experience-video" muted loop playsinline autoplay preload="auto" poster="assets/juta-river-pool-and-lodge.jpeg">
+      <source src="assets/experience-video.mp4" type="video/mp4">
+      <img src="assets/juta-river-pool-and-lodge.jpeg" alt="Experience The Juta River">
+    </video>
+    <div class="experience-video-overlay"></div>
+    <div class="experience-video-label">02 / THE EXPERIENCE</div>
+  </div>
+  
+  <div class="experience-copy">
+    <div class="number">02</div>
+    <h3>Make a whole day of it.</h3>
+    <p>Chill by the pool, meet your people, grab something cold and settle into the atmosphere before the music gets loud.</p>
+    <a href="#drinks">Explore the vibe →</a>
+  </div>
 </section>
 
+<!-- ===== DRINKS SECTION ===== -->
 <section class="drinks" id="drinks">
   <div class="drinks-bg"><img src="assets/juta-drinks-brutal-fruit.jpeg" alt="Drinks at The Juta River"></div>
   <div class="drinks-overlay"></div>
   <div class="drinks-inner">
-    <div class="drinks-copy"><div class="eyebrow"><span></span> DRINKS & ENTERTAINMENT</div><h2>Good drinks.<br>Good music.<br><em>Good people.</em></h2><p>Keep the day moving with cold drinks, music and the kind of atmosphere that makes you stay longer than planned.</p><a class="gold-btn" href="#book">Ask what's on <b>→</b></a></div>
-    <div class="drink-side"><img src="assets/juta-drinks-corona.jpeg" alt="Corona drinks at The Juta River"><div><span>ON-SITE BAR</span><h3>Keep it cold.</h3><p>Ask about drinks, bar service and what's available for your event.</p></div></div>
+    <div class="drinks-copy">
+      <div class="eyebrow"><span></span> DRINKS & ENTERTAINMENT</div>
+      <h2>Good drinks.<br>Good music.<br><em>Good people.</em></h2>
+      <p>Keep the day moving with cold drinks, music and the kind of atmosphere that makes you stay longer than planned.</p>
+      <a class="gold-btn" href="#book">Ask what's on <b>→</b></a>
+    </div>
+    <div class="drink-side">
+      <img src="assets/juta-drinks-corona.jpeg" alt="Corona drinks at The Juta River">
+      <div>
+        <span>ON-SITE BAR</span>
+        <h3>Keep it cold.</h3>
+        <p>Ask about drinks, bar service and what's available for your event.</p>
+      </div>
+    </div>
   </div>
 </section>
 
+<!-- ===== GALLERY SECTION ===== -->
 <section class="gallery section">
-  <div class="section-top"><div><div class="eyebrow"><span></span> THE JUTA RIVER</div><h2>See the<br><em>setting.</em></h2></div><p>From the wide-open grounds to the pool and lodge, the venue is part of the experience.</p></div>
+  <div class="section-top">
+    <div>
+      <div class="eyebrow"><span></span> THE JUTA RIVER</div>
+      <h2>See the<br><em>setting.</em></h2>
+    </div>
+    <p>From the wide-open grounds to the pool and lodge, the venue is part of the experience.</p>
+  </div>
   <div class="gallery-grid">
     <figure class="g1"><img src="assets/venue-bg.jpg" alt="Juta River lodge and pool"></figure>
     <figure class="g2"><img src="assets/juta-river-outdoor-area.jpeg" alt="Outdoor seating at Juta River"></figure>
     <figure class="g3"><img src="assets/juta-river-pool-and-lodge.jpeg" alt="Juta River pool and lodge"></figure>
-    <div class="gallery-note"><span>03</span><strong>THE<br>SETTING.</strong><p>Space to celebrate. Space to breathe. Space to remember.</p></div>
+    <div class="gallery-note">
+      <span>03</span>
+      <strong>THE<br>SETTING.</strong>
+      <p>Space to celebrate. Space to breathe. Space to remember.</p>
+    </div>
   </div>
 </section>
 
+<!-- ===== BOOK SECTION ===== -->
 <section class="book section" id="book">
   <div class="book-card">
-    <div><div class="eyebrow"><span></span> MAKE IT YOURS</div><h2>Ready to<br><em>make a memory?</em></h2><p>Events, private functions, parties and venue bookings. Tell The Juta River what you're planning.</p></div>
-    <div class="book-actions"><a class="gold-btn" href="https://wa.me/27751656082?text=Hi%20The%20Juta%20River%2C%20I'd%20like%20to%20enquire%20about%20an%20event%20or%20venue%20booking." target="_blank" rel="noopener">WhatsApp the venue <b>↗</b></a><a class="outline-btn" href="mailto:info@thejutariver.co.za">Send an email <b>↗</b></a><small>Fastest response: WhatsApp</small></div>
+    <div>
+      <div class="eyebrow"><span></span> MAKE IT YOURS</div>
+      <h2>Ready to<br><em>make a memory?</em></h2>
+      <p>Events, private functions, parties and venue bookings. Tell The Juta River what you're planning.</p>
+    </div>
+    <div class="book-actions">
+      <a class="gold-btn" href="https://wa.me/27751656082?text=Hi%20The%20Juta%20River%2C%20I'd%20like%20to%20enquire%20about%20an%20event%20or%20venue%20booking." target="_blank" rel="noopener">WhatsApp the venue <b>↗</b></a>
+      <a class="outline-btn" href="mailto:info@thejutariver.co.za">Send an email <b>↗</b></a>
+      <small>Fastest response: WhatsApp</small>
+    </div>
   </div>
 </section>
+
 </main>
 
+<!-- ===== FOOTER ===== -->
 <footer id="contact">
-  <div class="footer-brand"><a class="brand" href="#home"><span class="brand-icon">♨</span><span><b>THE<br>JUTA</b><small>RIVER LODGE</small></span></a><p>Giyani's destination for events, good people and unforgettable moments.</p></div>
-  <div><small>EXPLORE</small><a href="#events">Events</a><a href="#venue">Venue</a><a href="#experience">Experience</a><a href="#drinks">Drinks</a></div>
-  <div><small>CONTACT</small><a href="https://wa.me/27751656082" target="_blank" rel="noopener">WhatsApp</a><a href="mailto:info@thejutariver.co.za">Email</a><span>Giyani · Limpopo</span></div>
-  <div><small>FOLLOW</small><div class="social"><a href="#">IG</a><a href="#">FB</a><a href="#">TK</a></div></div>
+  <div class="footer-brand">
+    <a class="brand" href="#home">
+      <span class="brand-icon">♨</span>
+      <span><b>THE<br>JUTA</b><small>RIVER LODGE</small></span>
+    </a>
+    <p>Giyani's destination for events, good people and unforgettable moments.</p>
+  </div>
+  <div>
+    <small>EXPLORE</small>
+    <a href="#events">Events</a>
+    <a href="#venue">Venue</a>
+    <a href="#experience">Experience</a>
+    <a href="#drinks">Drinks</a>
+  </div>
+  <div>
+    <small>CONTACT</small>
+    <a href="https://wa.me/27751656082" target="_blank" rel="noopener">WhatsApp</a>
+    <a href="mailto:info@thejutariver.co.za">Email</a>
+    <span>Giyani · Limpopo</span>
+  </div>
+  <div>
+    <small>FOLLOW</small>
+    <div class="social">
+      <a href="#">IG</a>
+      <a href="#">FB</a>
+      <a href="#">TK</a>
+    </div>
+  </div>
   <div class="footer-bottom">© 2026 THE JUTA RIVER <span>Enjoy responsibly · 18+</span></div>
 </footer>
 
-<div class="mobile-actions"><a href="#events">Events</a><a href="https://wa.me/27751656082" target="_blank" rel="noopener">WhatsApp</a><a href="#book">Book</a></div>
+<div class="mobile-actions">
+  <a href="#events">Events</a>
+  <a href="https://wa.me/27751656082" target="_blank" rel="noopener">WhatsApp</a>
+  <a href="#book">Book</a>
+</div>
 <button class="top" aria-label="Back to top">↑</button>
+
 <script src="script.js"></script>
 <script src="event-engine.js"></script>
 </body>
