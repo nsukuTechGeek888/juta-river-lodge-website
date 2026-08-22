@@ -11,7 +11,7 @@ addEventListener("resize",()=>{if(innerWidth>800)closeMenu()});
 document.querySelectorAll("img").forEach(img=>{img.addEventListener("error",()=>img.style.opacity=".25")});
 
 // ============================================
-// LOADING SCREEN - SIMPLE & RELIABLE
+// LOADING SCREEN
 // ============================================
 
 setTimeout(function() {
@@ -36,36 +36,94 @@ setTimeout(function() {
 }, 2500);
 
 // ============================================
-// FORCE VIDEO PLAY ON MOBILE
+// SCROLL ANIMATIONS
 // ============================================
 
-function forcePlayVideo() {
-    const video = document.getElementById('hero-video');
-    if (!video) return;
+function handleScrollAnimations() {
+    const elements = document.querySelectorAll('.section, .split-venue, .experience-section, .book, .gallery, .drinks');
+    elements.forEach(function(el) {
+        const rect = el.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        if (rect.top < windowHeight - 100) {
+            el.classList.add('visible');
+        }
+    });
+}
+
+// Add fade-up class to sections
+document.querySelectorAll('.section, .split-venue, .experience-section, .book, .gallery, .drinks').forEach(function(el) {
+    el.classList.add('fade-up');
+});
+
+// Check on load and scroll
+window.addEventListener('load', function() {
+    setTimeout(handleScrollAnimations, 500);
+});
+window.addEventListener('scroll', handleScrollAnimations);
+
+// ============================================
+// FORCE ALL VIDEOS TO PLAY
+// ============================================
+
+function playAllVideos() {
+    const heroVideo = document.getElementById('hero-video');
+    if (heroVideo) {
+        heroVideo.muted = true;
+        heroVideo.playsInline = true;
+        heroVideo.loop = true;
+        heroVideo.style.display = 'block';
+        heroVideo.classList.add('show');
+        if (heroVideo.paused) {
+            heroVideo.play().catch(function() {});
+        }
+    }
     
-    video.muted = true;
-    video.playsInline = true;
-    video.loop = true;
-    
-    video.style.display = 'block';
-    video.classList.add('show');
-    
-    if (video.paused) {
-        video.play().catch(function() {
-            console.log('🔇 Autoplay blocked, waiting for interaction...');
-        });
+    const expVideo = document.querySelector('.experience-video');
+    if (expVideo) {
+        expVideo.muted = true;
+        expVideo.playsInline = true;
+        expVideo.loop = true;
+        if (expVideo.paused) {
+            expVideo.play().catch(function() {});
+        }
     }
 }
 
-setTimeout(forcePlayVideo, 500);
-setTimeout(forcePlayVideo, 1500);
+// Try to play immediately
+setTimeout(playAllVideos, 500);
+setTimeout(playAllVideos, 1500);
+setTimeout(playAllVideos, 3000);
 
-document.addEventListener('click', function forcePlayOnce() {
-    forcePlayVideo();
-    document.removeEventListener('click', forcePlayOnce);
+// Play on user interaction
+document.addEventListener('click', function() {
+    playAllVideos();
 }, { once: true });
 
-document.addEventListener('touchstart', function forcePlayTouch() {
-    forcePlayVideo();
-    document.removeEventListener('touchstart', forcePlayTouch);
+document.addEventListener('touchstart', function() {
+    playAllVideos();
 }, { once: true });
+
+let scrollPlayed = false;
+document.addEventListener('scroll', function() {
+    if (!scrollPlayed) {
+        playAllVideos();
+        scrollPlayed = true;
+    }
+}, { once: true });
+
+// Intersection Observer for experience video
+const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+            const expVideo = document.querySelector('.experience-video');
+            if (expVideo && expVideo.paused) {
+                expVideo.play().catch(function() {});
+            }
+        }
+    });
+}, { threshold: 0.2 });
+
+const expSection = document.querySelector('.experience-section');
+if (expSection) {
+    observer.observe(expSection);
+}
